@@ -1,0 +1,166 @@
+package ru.viz.clinic.security;
+
+import com.vaadin.flow.spring.security.AuthenticationContext;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import jakarta.validation.constraints.NotNull;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.viz.clinic.data.Role;
+import ru.viz.clinic.data.entity.EngineerPersonal;
+import ru.viz.clinic.data.entity.MedicPersonal;
+import ru.viz.clinic.data.entity.Personal;
+import ru.viz.clinic.data.model.PersonalDTO;
+import ru.viz.clinic.data.service.PersonalService;
+
+@Component
+public class AuthenticationService {
+    private final AuthenticationContext authenticationContext;
+    private final AuthenticationManager authenticationManager;
+    private final JdbcUserDetailsManager jdbcUserDetailsManager;
+    private final PersonalService personalService;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthenticationService(
+            @NotNull final AuthenticationContext authenticationContext,
+            @NotNull final AuthenticationManager authenticationManager,
+            @NotNull final JdbcUserDetailsManager jdbcUserDetailsManager,
+            @NotNull final PersonalService personalService,
+            @NotNull final PasswordEncoder passwordEncoder
+
+    ) {
+        this.authenticationContext = Objects.requireNonNull(authenticationContext);
+        this.authenticationManager = Objects.requireNonNull(authenticationManager);
+        this.jdbcUserDetailsManager = Objects.requireNonNull(jdbcUserDetailsManager);
+        this.personalService = Objects.requireNonNull(personalService);
+        this.passwordEncoder = Objects.requireNonNull(passwordEncoder);
+    }
+
+    @Transactional
+    public Optional<UserDetails> getUserDetails() {
+        return authenticationContext.getAuthenticatedUser(UserDetails.class);
+    }
+
+    public void logout() {
+        authenticationContext.logout();
+    }
+
+    public boolean isUserLoggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null
+                && !(authentication instanceof AnonymousAuthenticationToken)
+                && authentication.isAuthenticated();
+    }
+
+    @Transactional
+    public void createTempUserDetails(PersonalDTO personalDTO) {
+        UserDetails userDetails = User.builder()
+                .disabled(false)
+                .password(passwordEncoder.encode(personalDTO.getPassword()))
+                .username(personalDTO.getUsername())
+                .authorities(new SimpleGrantedAuthority(Role.TEMP.getAuthority()))
+                .build();
+        jdbcUserDetailsManager.createUser(userDetails);
+    }
+
+    public void authenticate(
+            @NotNull final String username,
+            @NotNull final String password
+    ) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public void unauthenticated(
+            @NotNull final String username,
+            @NotNull final String password
+    ) {
+        this.authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated(username, password));
+    }
+
+    public List<GrantedAuthority> getAuthorities(@NotNull final Set<Role> roles) {
+        Objects.requireNonNull(roles);
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updatePassAndRole(
+            @NotNull final String currentPass,
+            @NotNull final String newPass
+    ) {
+        getUserDetails().ifPresentOrElse(userDetails ->
+                        personalService.getLoggedPersonal(userDetails).ifPresentOrElse(personal -> {
+                                    updatePassAndRole(currentPass, newPass, personal);
+                                },
+                                () -> {
+                                    throw new RuntimeException("no logged user");
+                                }),
+                () -> {
+                    throw new RuntimeException("no person for logged user");
+                });
+    }
+
+    private void updatePassAndRole(
+            @NotNull final String currentPass,
+            @NotNull final String newPass,
+            @NotNull final Personal personal
+    ) {
+        Objects.requireNonNull(currentPass);
+        Objects.requireNonNull(newPass);
+        Objects.requireNonNull(personal);
+        if (personal instanceof final EngineerPersonal engineerPersonal) {
+            updatePassAndRole(engineerPersonal.getUsername(), Set.of(Role.ENGINEER),
+                    currentPass, newPass);
+        } else if (personal instanceof final MedicPersonal medicPersonal) {
+            updatePassAndRole(medicPersonal.getUsername(), Set.of(Role.MEDIC), currentPass,
+                    newPass);
+        } else {
+            throw new RuntimeException("personal is not instance of Engineer or Medic");
+        }
+    }
+
+    @Transactional
+    private void updatePassAndRole(
+            @NotNull final String username,
+            @NotNull final Set<Role> roles,
+            @NotNull final String currentPass,
+            @NotNull final String newPass
+    ) {
+        Objects.requireNonNull(newPass);
+        Objects.requireNonNull(currentPass);
+        Objects.requireNonNull(roles);
+        Objects.requireNonNull(username);
+
+        getUserDetails().ifPresentOrElse(userDetails -> {
+            unauthenticated(username, currentPass);
+
+            UserDetails newUserDetails = User.builder()
+                    .username(username)
+                    .authorities(getAuthorities(roles))
+                    .password(passwordEncoder.encode(newPass))
+                    .build();
+
+            jdbcUserDetailsManager.updateUser(newUserDetails);
+
+            authenticate(username, newPass);
+        }, () -> {
+            throw new RuntimeException("No person");
+        });
+    }
+}

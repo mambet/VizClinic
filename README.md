@@ -1,4 +1,4 @@
-# VizClinik
+# VizClinic
 
 This project can be used as a starting point to create your own Vaadin application with Spring Boot.
 It contains all the necessary configuration and some placeholder files to get you started.
@@ -20,7 +20,7 @@ This will build a JAR file with all the dependencies and front-end resources,
 ready to be deployed. The file can be found in the `target` folder after the build completes.
 
 Once the JAR file is built, you can run it using
-`java -jar target/vizclinik-1.0-SNAPSHOT.jar`
+`java -jar target/vizclinic-1.0.jar`
 
 ## Project structure
 
@@ -51,11 +51,11 @@ To build the Dockerized version of the project, run
 
 ```
 mvn clean package -Pproduction
-docker build . -t vizclinik:latest
+docker build . -t vizclinic:latest
 ```
 
 Once the Docker image is correctly built, you can test it locally using
 
 ```
-docker run -p 8080:8080 vizclinik:latest
+docker run -p 8080:8080 vizclinic:latest
 ```
