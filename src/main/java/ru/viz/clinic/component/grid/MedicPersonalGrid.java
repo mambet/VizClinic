@@ -39,7 +39,7 @@ public class MedicPersonalGrid extends PersonGrid<MedicPersonal> implements Depa
     }
 
     private void createTable() {
-        this.setSelectionMode(SelectionMode.SINGLE);
+        this.setSelectionMode(Grid.SelectionMode.NONE);
         List<Column<MedicPersonal>> columns = new ArrayList<>(this.getColumns());
         Grid.Column<MedicPersonal> departmentColumn = this.addColumn(
                         medicPersonal1 -> medicPersonal1.getDepartment().getName())
