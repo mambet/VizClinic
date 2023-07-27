@@ -8,8 +8,6 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -28,9 +26,7 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Regex.*;
 import static ru.viz.clinic.help.Translator.*;
 
-public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, R extends CommonRepository<P>> extends VizConfirmDialog {
-    protected final Binder<T> binder;
-    private final Class<T> type;
+public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, R extends CommonRepository<P>> extends VizConfirmDialog<T> {
     private static final int WORD_LENGTH = 4;
     private FormLayout formLayout;
     private TextField firstNameField;
@@ -44,17 +40,10 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
 
     public PersonalDialog(
             @NotNull final T t,
-            @NotNull final AbstractService<P, R, T> abstractService,
-            @NotNull Class<T> type
+            @NotNull final AbstractService<P, R, T> abstractService
     ) {
-        super(DLH_CREATE_MEDIC);
-
-        binder = new BeanValidationBinder<>(type);
-        this.type = type;
+        super(DLH_CREATE_MEDIC, t);
         Objects.requireNonNull(t);
-
-        setConfirmText(BTN_CONFIRM_CREATE);
-        setCancelText(BTN_CANCEL);
 
         genderField = new RadioButtonGroup<>(LBL_GENDER);
 
@@ -86,7 +75,8 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
 
         binder.forField(userField)
                 .asRequired()
-                .withValidator(s -> abstractService.findByUsername(s).isEmpty(), ERR_MSG_USER_NAME_BUSY, ErrorLevel.ERROR)
+                .withValidator(s -> abstractService.findByUsername(s).isEmpty(), ERR_MSG_USER_NAME_BUSY,
+                        ErrorLevel.ERROR)
                 .withValidator(s -> s.length() >= WORD_LENGTH, ERR_MSG_USER_NAME_IS_SHORT, ErrorLevel.WARNING)
                 .bind(PersonalDTO::getUsername, PersonalDTO::setUsername);
         binder.forField(passwordField)
@@ -108,8 +98,6 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
         formLayout = new FormLayout();
 
         this.add(formLayout);
-
-        binder.setBean(t);
         binder.addValueChangeListener(this::fieldsChanges);
         setBtnConfirmEnable(binder.isValid());
     }
@@ -127,16 +115,4 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
     private void fieldsChanges(HasValue.ValueChangeEvent<?> valueChangeEvent) {
         setBtnConfirmEnable(binder.isValid());
     }
-
-    @Override
-    void confirmListener(ConfirmEvent confirmEvent) {
-        if (binder.isValid()) {
-            firePersonalEvent(binder.getBean());
-            this.close();
-        } else {
-            Helper.showErrorNotification(ERR_MSG_INVALID_DATA);
-        }
-    }
-
-    protected abstract void firePersonalEvent(T t);
 }

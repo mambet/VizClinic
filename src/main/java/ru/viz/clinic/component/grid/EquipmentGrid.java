@@ -13,10 +13,11 @@ import java.util.Optional;
 
 import static ru.viz.clinic.help.Translator.HDR_DEPARTMENT;
 
-public class EquipmentGrid extends Grid<Equipment>  implements DepartmentGridUpdater {
+public class EquipmentGrid extends Grid<Equipment> implements DepartmentGridUpdater {
     public EquipmentGrid() {
         createTable();
     }
+
     @Override
     public GridListDataView<Equipment> setItems(Collection<Equipment> items) {
         return super.setItems(items);
@@ -33,7 +34,7 @@ public class EquipmentGrid extends Grid<Equipment>  implements DepartmentGridUpd
     }
 
     private void createTable() {
-        this.setSelectionMode(SelectionMode.SINGLE);
+        this.setSelectionMode(SelectionMode.NONE);
         this.addColumn(Equipment::getId);
         this.addColumn(Equipment::getNumber);
         this.addColumn(Equipment::getNumberNext);

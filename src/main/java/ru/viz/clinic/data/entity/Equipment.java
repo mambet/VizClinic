@@ -16,8 +16,10 @@ public class Equipment  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ToString.Exclude
     private Long id;
+    private String name;
     private String number;
     private String numberNext;
+    private String description;
     private LocalDate createDate;
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)

@@ -1,7 +1,6 @@
 package ru.viz.clinic.views.login;
 
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,11 +11,8 @@ import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.transaction.annotation.Transactional;
+import ru.viz.clinic.component.dialog.*;
 import ru.viz.clinic.component.grid.*;
-import ru.viz.clinic.component.dialog.DepartmentDialog;
-import ru.viz.clinic.component.dialog.EngineerPersonalDialog;
-import ru.viz.clinic.component.dialog.HospitalDialog;
-import ru.viz.clinic.component.dialog.MedicPersonalDialog;
 import ru.viz.clinic.component.TopicBox;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Hospital;
@@ -86,12 +82,11 @@ public class PersonalView extends VerticalLayout {
 
     private void hospitalSelect(SelectionEvent<Grid<Hospital>, Hospital> gridHospitalSelectionEvent) {
         Optional<Hospital> optionalHospital = gridHospitalSelectionEvent.getFirstSelectedItem();
+        departmentGrid.select(null);
         departmentGrid.updateHospital(optionalHospital);
         medicPersonalGrid.updateHospital(optionalHospital);
         engineerPersonalGrid.updateHospital(optionalHospital);
         equipmentGrid.updateHospital(optionalHospital);
-        departmentGrid.select(null);
-
     }
 
     private void departmentSelect(SelectionEvent<Grid<Department>, Department> gridDepartmentSelectionEvent) {
@@ -166,8 +161,7 @@ public class PersonalView extends VerticalLayout {
 
     private void handleCreateDepartment(ClickEvent<Button> buttonClickEvent) {
         DepartmentDialog departmentDialog = new DepartmentDialog(hospitalService.getAll());
-        departmentDialog.addListener(DepartmentDialog.UpdateHospitalDepartmentEvent.class,
-                this::handleCreateDepartment);
+        departmentDialog.addListener(DepartmentDialog.UpdateDepartmentEvent.class, this::handleCreateDepartment);
         departmentDialog.open();
     }
 
@@ -179,12 +173,14 @@ public class PersonalView extends VerticalLayout {
     }
 
     private void handleCreateEquipment(ClickEvent<Button> buttonClickEvent) {
-        //TODO
+        EquipmentDialog equipmentDialog = new EquipmentDialog(hospitalService.getAll());
+        equipmentDialog.addListener(EquipmentDialog.UpdateEquipmentEvent.class, this::saveEquipment);
+        equipmentDialog.open();
     }
 
     private void saveHospital(HospitalDialog.UpdateHospitalEvent updateHospitalEvent) {
         try {
-            hospitalService.saveHospital(updateHospitalEvent.getHospital());
+            hospitalService.save(updateHospitalEvent.getHospital());
             hospitalGrid.setItems(hospitalService.getAll());
             hospitalGrid.getListDataView().refreshAll();
             Helper.showSuccessNotification(Translator.MSG_HOSPITAL_SUCCESS_SAVED);
@@ -194,9 +190,9 @@ public class PersonalView extends VerticalLayout {
         }
     }
 
-    private void handleCreateDepartment(DepartmentDialog.UpdateHospitalDepartmentEvent updateHospitalEvent) {
+    private void handleCreateDepartment(DepartmentDialog.UpdateDepartmentEvent updateHospitalEvent) {
         try {
-            departmentService.saveDepartment(updateHospitalEvent.getDepartment());
+            departmentService.save(updateHospitalEvent.getDepartment());
             departmentGrid.setItems(departmentService.getAll());
             departmentGrid.getListDataView().refreshAll();
             Helper.showSuccessNotification(Translator.MSG_DEPARTMENT_SUCCESS_SAVED);
@@ -209,9 +205,10 @@ public class PersonalView extends VerticalLayout {
     private void saveMedic(MedicPersonalDialog.UpdateMedicPersonalEvent updateMedicPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateMedicPersonalEvent.getMedicPersonalDTO());
-            medicPersonalService.createTempPersonal(updateMedicPersonalEvent.getMedicPersonalDTO());
+            medicPersonalService.save(updateMedicPersonalEvent.getMedicPersonalDTO());
             Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
             medicPersonalGrid.setItems(medicPersonalService.getAll());
+            medicPersonalGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
             Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
@@ -222,9 +219,22 @@ public class PersonalView extends VerticalLayout {
     private void saveEngineer(EngineerPersonalDialog.UpdateEngineerPersonalEvent updateEngineerPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateEngineerPersonalEvent.getEngineerPersonalDTO());
-            engineerPersonalService.createTempPersonal(updateEngineerPersonalEvent.getEngineerPersonalDTO());
+            engineerPersonalService.save(updateEngineerPersonalEvent.getEngineerPersonalDTO());
             Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
             engineerPersonalGrid.setItems(engineerPersonalService.getAll());
+            engineerPersonalGrid.getListDataView().refreshAll();
+            deselectAll();
+        } catch (Exception e) {
+            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+        }
+    }
+
+    private void saveEquipment(EquipmentDialog.UpdateEquipmentEvent updateEquipmentEvent) {
+        try {
+            equipmentService.save(updateEquipmentEvent.getEquipment());
+            Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
+            equipmentGrid.setItems(equipmentService.getAll());
+            equipmentGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
             Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));

@@ -1,9 +1,15 @@
 package ru.viz.clinic.component;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,6 +18,7 @@ import java.util.Objects;
 
 public class TopicBox extends VerticalLayout {
     VerticalLayout verticalLayout = new VerticalLayout();
+    Button hide = new Button(new Icon(VaadinIcon.EYE_SLASH));
 
     public TopicBox(
             @NotNull final String label,
@@ -24,11 +31,27 @@ public class TopicBox extends VerticalLayout {
         header.setText(label);
         verticalLayout.setHeightFull();
         verticalLayout.setWidthFull();
+        verticalLayout.add(new Hr());
         verticalLayout.add(components);
-        this.add(header, new Hr(), verticalLayout);
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout(header, hide);
+        horizontalLayout.setWidthFull();
+        hide.getStyle().set("margin-left", "auto");
+
+        this.add(horizontalLayout, verticalLayout);
         this.getThemeList().add("viz-group-box");
         this.getElement().getStyle().set("background", "#f4f5f7");
         this.getElement().getStyle().set("border-radius", "10px");
         this.setPadding(true);
+        hide.addClickListener(this::listenHide);
+    }
+
+    private void listenHide(ClickEvent<Button> buttonClickEvent) {
+        verticalLayout.setVisible(!verticalLayout.isVisible());
+        if(verticalLayout.isVisible())
+            hide.setIcon(new Icon(VaadinIcon.EYE_SLASH));
+        else
+            hide.setIcon(new Icon(VaadinIcon.EYE));
+
     }
 }

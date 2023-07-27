@@ -8,6 +8,13 @@ public class Translator {
     public static final String BTN_CREATE_HOSPITAL = "+ Создать клинику";
     public static final String BTN_CREATE_DEPARTMENT = "+ Создать отдедение";
     //label
+    public static final String LBL_HOSPITAL_NAME = "Наименование клиники";
+    public static final String LBL_DEPARTMENT_NAME = "Наименование отделения";
+    public static final String LBL_EQUIPMENT_NAME = "Наименование оборудования";
+    public static final String LBL_EQUIPMENT_NUMBER = "Номер 1";
+    public static final String LBL_EQUIPMENT_NUMBER_NEXT = "Номер 2";
+    public static final String LBL_EQUIPMENT_DESCRIPTION = "Описание оборудования";
+    public static final String LBL_EQUIPMENT_CREATE_DATE = "Дата выпуска";
     public static final String LBL_FIRST_NAME = "Имя";
     public static final String LBL_LAST_NAME = "Фамилия";
     public static final String LBL_BIRTHDAY = "Дата рождения";

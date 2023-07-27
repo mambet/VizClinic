@@ -30,7 +30,7 @@ public abstract class AbstractService<E extends Personal, R extends CommonReposi
     }
 
     @Transactional
-    public void createTempPersonal(D personalDTO) {
+    public void save(D personalDTO) {
         repository.save(modelMapper.map(personalDTO, eClass));
     }
 

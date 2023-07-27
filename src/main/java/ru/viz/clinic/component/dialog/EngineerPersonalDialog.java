@@ -21,7 +21,7 @@ public class EngineerPersonalDialog extends PersonalDialog<EngineerPersonalDTO, 
             @NotNull final Collection<Hospital> hospitals,
             @NotNull final EngineerPersonalDTO engineerPersonalDTO
     ) {
-        super(engineerPersonalDTO, engineerPersonalService, EngineerPersonalDTO.class);
+        super(engineerPersonalDTO, engineerPersonalService);
 
         hospitalSelect.setItems(hospitals);
         hospitalSelect.setItemLabelGenerator(Hospital::getName);
@@ -41,8 +41,8 @@ public class EngineerPersonalDialog extends PersonalDialog<EngineerPersonalDTO, 
     }
 
     @Override
-    protected void firePersonalEvent(@NotNull final EngineerPersonalDTO engineerPersonalDTO) {
-        fireEvent(new UpdateEngineerPersonalEvent(this, Objects.requireNonNull(engineerPersonalDTO)));
+    protected void firePersonalEvent() {
+        fireEvent(new UpdateEngineerPersonalEvent(this, Objects.requireNonNull(item)));
     }
 
     @Getter

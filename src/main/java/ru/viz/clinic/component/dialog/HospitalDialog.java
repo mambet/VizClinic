@@ -19,20 +19,11 @@ import java.util.Objects;
 
 import static ru.viz.clinic.help.Translator.*;
 
-public class HospitalDialog extends VizConfirmDialog {
-    private final Binder<Hospital> binder = new BeanValidationBinder<>(Hospital.class);
-    private final Hospital hospital;
-
+public class HospitalDialog extends VizConfirmDialog<Hospital> {
     public HospitalDialog(@NotNull final Hospital hospital) {
-        super(DLH_CREATE_HOSPITAL);
-        this.hospital = hospital;
+        super(DLH_CREATE_HOSPITAL, hospital);
 
-        Objects.requireNonNull(hospital);
-
-        setConfirmText(BTN_CONFIRM_CREATE);
-        setCancelText(BTN_CANCEL);
-
-        final TextField hospitalName = new TextField(LBL_FIRST_NAME);
+        final TextField hospitalName = new TextField(LBL_HOSPITAL_NAME);
         final TextField streetField = new TextField(LBL_STREET);
         final TextField cityField = new TextField(LBL_CITY);
         final IntegerField postalCodeField = new IntegerField(LBL_POSTAL_CODE);
@@ -80,26 +71,15 @@ public class HospitalDialog extends VizConfirmDialog {
                             }
                             item.getAddress().setRegion(value);
                         });
-
-        binder.readBean(hospital);
-        this.setBinder(binder);
     }
 
     public HospitalDialog() {
         this(new Hospital());
     }
 
-
-
     @Override
-    void confirmListener(ConfirmEvent confirmEvent) {
-        if (binder.isValid()) {
-            binder.writeBeanIfValid(hospital);
-            fireEvent(new UpdateHospitalEvent(this, hospital));
-            this.close();
-        } else {
-            Helper.showErrorNotification(ERR_MSG_INVALID_DATA);
-        }
+    protected void firePersonalEvent() {
+        fireEvent(new UpdateHospitalEvent(this, Objects.requireNonNull(item)));
     }
 
     @Getter

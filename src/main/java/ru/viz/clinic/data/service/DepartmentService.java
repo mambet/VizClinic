@@ -17,7 +17,7 @@ public class DepartmentService {
     }
 
     // Save or update a hospital
-    public Department saveDepartment(Department hospital) {
+    public Department save(Department hospital) {
         return departmentRepository.save(hospital);
     }
 
