@@ -8,7 +8,6 @@ import ru.viz.clinic.help.Translator;
 
 public class PersonGrid<T extends Personal> extends Grid<T> {
 
-
     public PersonGrid() {
         this.addColumn(Personal::getUsername).setHeader(Translator.LBL_USER);
         this.addColumn(Personal::getFirstName).setHeader(Translator.LBL_FIRST_NAME);
@@ -18,7 +17,7 @@ public class PersonGrid<T extends Personal> extends Grid<T> {
         this.addColumn(person -> person.getGender() != null ? person.getGender().getGenderAsString() : Strings.EMPTY)
                 .setHeader(Translator.LBL_GENDER);
         this.setAllRowsVisible(true);
-        this.setSelectionMode(Grid.SelectionMode.SINGLE);
+        this.setSelectionMode(Grid.SelectionMode.NONE);
     }
 
 

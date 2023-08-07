@@ -10,8 +10,6 @@ import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.security.authentication.AuthenticationManager;
-import ru.viz.clinic.data.service.MedicPersonalService;
 import ru.viz.clinic.security.AuthenticationService;
 
 import java.util.Objects;

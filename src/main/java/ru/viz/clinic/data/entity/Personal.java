@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @MappedSuperclass
-public class Personal {
+public class Personal extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
     @SequenceGenerator(name = "idgenerator", initialValue = 1000)

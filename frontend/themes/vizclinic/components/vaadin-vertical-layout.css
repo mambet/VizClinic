@@ -1,5 +1,0 @@
-:host([theme~='viz-group-box']) {
-    background: #555555;
-    border-radius: var(--lumo-border-radius-l);
-    padding: 10px;
-}

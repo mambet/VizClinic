@@ -27,9 +27,10 @@ public class TopicBox extends VerticalLayout {
         Objects.requireNonNull(label);
 
         this.setWidthFull();
+        this.setHeightFull();
         final H3 header = new H3();
         header.setText(label);
-        verticalLayout.setHeightFull();
+
         verticalLayout.setWidthFull();
         verticalLayout.add(new Hr());
         verticalLayout.add(components);
@@ -40,7 +41,7 @@ public class TopicBox extends VerticalLayout {
 
         this.add(horizontalLayout, verticalLayout);
         this.getThemeList().add("viz-group-box");
-        this.getElement().getStyle().set("background", "#f4f5f7");
+//        this.getElement().getStyle().set("background", "#28394e");
         this.getElement().getStyle().set("border-radius", "10px");
         this.setPadding(true);
         hide.addClickListener(this::listenHide);

@@ -29,14 +29,11 @@ import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-import ru.viz.clinic.data.service.MedicPersonalService;
 import ru.viz.clinic.security.AuthenticationService;
-import ru.viz.clinic.views.about.AboutView;
-import ru.viz.clinic.views.admin.AdminView;
-import ru.viz.clinic.views.helloworld.HelloWorldView;
-import ru.viz.clinic.views.ingeneer.EngineerView;
+import ru.viz.clinic.views.order.EngineerOrderView;
 import ru.viz.clinic.views.login.PersonalView;
-import ru.viz.clinic.views.medic.MedicView;
+import ru.viz.clinic.views.order.MedicOrderView;
+import ru.viz.clinic.views.order.AdminOrderView;
 
 import static ru.viz.clinic.help.Translator.*;
 
@@ -157,9 +154,10 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{
-                new MenuItemInfo(MIT_PERSONAL, LineAwesomeIcon.GLOBE_SOLID.create(), PersonalView.class), //
-                new MenuItemInfo("Medic", LineAwesomeIcon.GLOBE_SOLID.create(), MedicView.class), //
-                new MenuItemInfo("Engineer", LineAwesomeIcon.GLOBE_SOLID.create(), EngineerView.class), //
+                new MenuItemInfo(MIT_PERSONAL, LineAwesomeIcon.README.create(), PersonalView.class), //
+                new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), MedicOrderView.class), //
+                new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), EngineerOrderView.class), //
+                new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), AdminOrderView.class), //
         };
     }
 }

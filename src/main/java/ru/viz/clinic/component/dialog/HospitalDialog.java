@@ -71,6 +71,7 @@ public class HospitalDialog extends VizConfirmDialog<Hospital> {
                             }
                             item.getAddress().setRegion(value);
                         });
+        binder.readBean(hospital);
     }
 
     public HospitalDialog() {
@@ -78,7 +79,7 @@ public class HospitalDialog extends VizConfirmDialog<Hospital> {
     }
 
     @Override
-    protected void firePersonalEvent() {
+    protected void handleConfirm() {
         fireEvent(new UpdateHospitalEvent(this, Objects.requireNonNull(item)));
     }
 

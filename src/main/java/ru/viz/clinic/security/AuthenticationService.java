@@ -3,6 +3,7 @@ package ru.viz.clinic.security;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import jakarta.validation.constraints.NotNull;
@@ -20,11 +21,11 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.data.Role;
-import ru.viz.clinic.data.entity.EngineerPersonal;
-import ru.viz.clinic.data.entity.MedicPersonal;
+import ru.viz.clinic.data.entity.Engineer;
+import ru.viz.clinic.data.entity.Medic;
 import ru.viz.clinic.data.entity.Personal;
 import ru.viz.clinic.data.model.PersonalDTO;
-import ru.viz.clinic.data.service.PersonalService;
+import ru.viz.clinic.service.PersonalService;
 
 @Component
 public class AuthenticationService {
@@ -116,6 +117,27 @@ public class AuthenticationService {
                 });
     }
 
+    public Optional<Role> getLoggedUserRole() {
+        return getLoggedUserAuthority()
+                .stream()
+                .map(Role::authorityToRole)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
+    public Set<String> getLoggedUserAuthority() {
+        AtomicReference<Set<String>> atomicReference = new AtomicReference<>(new HashSet<>());
+        getUserDetails().ifPresent(userDetails ->
+                atomicReference.set(userDetails
+                        .getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toSet()))
+        );
+        return atomicReference.get();
+    }
+
     private void updatePassAndRole(
             @NotNull final String currentPass,
             @NotNull final String newPass,
@@ -124,12 +146,10 @@ public class AuthenticationService {
         Objects.requireNonNull(currentPass);
         Objects.requireNonNull(newPass);
         Objects.requireNonNull(personal);
-        if (personal instanceof final EngineerPersonal engineerPersonal) {
-            updatePassAndRole(engineerPersonal.getUsername(), Set.of(Role.ENGINEER),
-                    currentPass, newPass);
-        } else if (personal instanceof final MedicPersonal medicPersonal) {
-            updatePassAndRole(medicPersonal.getUsername(), Set.of(Role.MEDIC), currentPass,
-                    newPass);
+        if (personal instanceof final Engineer engineer) {
+            updatePassAndRole(engineer.getUsername(), Set.of(Role.ENGINEER), currentPass, newPass);
+        } else if (personal instanceof final Medic medic) {
+            updatePassAndRole(medic.getUsername(), Set.of(Role.MEDIC), currentPass, newPass);
         } else {
             throw new RuntimeException("personal is not instance of Engineer or Medic");
         }

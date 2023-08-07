@@ -59,7 +59,7 @@ public class EquipmentDialog extends VizConfirmDialog<Equipment> {
         binder.forField(description).bind(Equipment::getDescription, Equipment::setDescription);
 
         setBtnConfirmEnable(binder.isValid());
-
+        binder.readBean(equipment);
         this.add(new FormLayout(hospitalSelect, departmentSelect, name, number, numberNext, description));
     }
 
@@ -72,7 +72,7 @@ public class EquipmentDialog extends VizConfirmDialog<Equipment> {
     }
 
     @Override
-    protected void firePersonalEvent() {
+    protected void handleConfirm() {
         fireEvent(new UpdateEquipmentEvent(this, Objects.requireNonNull(item)));
     }
 

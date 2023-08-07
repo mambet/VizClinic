@@ -16,14 +16,14 @@ import ru.viz.clinic.component.grid.*;
 import ru.viz.clinic.component.TopicBox;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Hospital;
-import ru.viz.clinic.data.service.*;
+import ru.viz.clinic.service.*;
 import ru.viz.clinic.help.Helper;
 import ru.viz.clinic.help.Translator;
 import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.views.MainLayout;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static ru.viz.clinic.help.Translator.*;
 
@@ -39,9 +39,9 @@ public class PersonalView extends VerticalLayout {
     private final MedicPersonalService medicPersonalService;
     private final EquipmentService equipmentService;
     private final Grid<Hospital> hospitalGrid;
-    private final MedicPersonalGrid medicPersonalGrid;
-    private final EngineerPersonalGrid engineerPersonalGrid;
-    private final DepartmentGrid departmentGrid;
+    private final MedicGrid medicGrid;
+    private final EngineerGrid engineerGrid;
+    private final DepartmentGridFilter departmentGrid;
     private final EquipmentGrid equipmentGrid;
 
     public PersonalView(
@@ -60,14 +60,14 @@ public class PersonalView extends VerticalLayout {
         this.equipmentService = Objects.requireNonNull(equipmentService);
 
         this.hospitalGrid = new HospitalGrid();
-        this.medicPersonalGrid = new MedicPersonalGrid();
-        this.engineerPersonalGrid = new EngineerPersonalGrid();
-        this.departmentGrid = new DepartmentGrid();
+        this.medicGrid = new MedicGrid();
+        this.engineerGrid = new EngineerGrid();
+        this.departmentGrid = new DepartmentGridFilter();
         this.equipmentGrid = new EquipmentGrid();
 
         this.hospitalGrid.setItems(hospitalService.getAll());
-        this.medicPersonalGrid.setItems(medicPersonalService.getAll());
-        this.engineerPersonalGrid.setItems(engineerPersonalService.getAll());
+        this.medicGrid.setItems(medicPersonalService.getAll());
+        this.engineerGrid.setItems(engineerPersonalService.getAll());
         this.departmentGrid.setItems(departmentService.getAll());
         this.equipmentGrid.setItems(equipmentService.getAll());
 
@@ -77,22 +77,28 @@ public class PersonalView extends VerticalLayout {
         hospitalGrid.addSelectionListener(this::hospitalSelect);
         departmentGrid.addSelectionListener(this::departmentSelect);
 
-        this.getElement().getStyle().set("background", "#bababb");
+        this.getElement().getStyle().set("background", "#28394e");
     }
 
     private void hospitalSelect(SelectionEvent<Grid<Hospital>, Hospital> gridHospitalSelectionEvent) {
-        Optional<Hospital> optionalHospital = gridHospitalSelectionEvent.getFirstSelectedItem();
+        AtomicReference<Hospital> hospitalAtomic = new AtomicReference<>();
+        gridHospitalSelectionEvent.getFirstSelectedItem()
+                .ifPresentOrElse(hospitalAtomic::set, () -> hospitalAtomic.set(null));
+
         departmentGrid.select(null);
-        departmentGrid.updateHospital(optionalHospital);
-        medicPersonalGrid.updateHospital(optionalHospital);
-        engineerPersonalGrid.updateHospital(optionalHospital);
-        equipmentGrid.updateHospital(optionalHospital);
+        departmentGrid.setHospitalFilterParameter(hospitalAtomic.get());
+        medicGrid.setHospitalFilterParameter(hospitalAtomic.get());
+        engineerGrid.setHospitalFilterParameter(hospitalAtomic.get());
+        equipmentGrid.setHospitalFilterParameter(hospitalAtomic.get());
     }
 
     private void departmentSelect(SelectionEvent<Grid<Department>, Department> gridDepartmentSelectionEvent) {
-        Optional<Department> departmentOptional = gridDepartmentSelectionEvent.getFirstSelectedItem();
-        medicPersonalGrid.updateDepartment(departmentOptional);
-        equipmentGrid.updateDepartment(departmentOptional);
+        AtomicReference<Department> departmentAtomic = new AtomicReference<>();
+        gridDepartmentSelectionEvent.getFirstSelectedItem()
+                .ifPresentOrElse(departmentAtomic::set, () -> departmentAtomic.set(null));
+
+        medicGrid.setDepartmentFilterParameter(departmentAtomic.get());
+        equipmentGrid.setDepartmentFilterParameter(departmentAtomic.get());
     }
 
     private TopicBox getHospitalTopicBox() {
@@ -104,11 +110,11 @@ public class PersonalView extends VerticalLayout {
     }
 
     private TopicBox getEngineerTopicBox() {
-        return new TopicBox(DLH_ENGINEER, getCreateEngineerButton(), engineerPersonalGrid);
+        return new TopicBox(DLH_ENGINEER, getCreateEngineerButton(), engineerGrid);
     }
 
     private TopicBox getMedicTopicBox() {
-        return new TopicBox(DLH_MEDIC, getCreateMedicButton(), medicPersonalGrid);
+        return new TopicBox(DLH_MEDIC, getCreateMedicButton(), medicGrid);
     }
 
     private TopicBox getEquipmentTopicBox() {
@@ -152,11 +158,11 @@ public class PersonalView extends VerticalLayout {
     }
 
     private void handleCreateEngineer(ClickEvent<Button> buttonClickEvent) {
-        EngineerPersonalDialog engineerPersonalDialog = new EngineerPersonalDialog(engineerPersonalService,
+        EngineerDialog engineerDialog = new EngineerDialog(engineerPersonalService,
                 hospitalService.getAll());
-        engineerPersonalDialog.addListener(EngineerPersonalDialog.UpdateEngineerPersonalEvent.class,
+        engineerDialog.addListener(EngineerDialog.UpdateEngineerPersonalEvent.class,
                 this::saveEngineer);
-        engineerPersonalDialog.open();
+        engineerDialog.open();
     }
 
     private void handleCreateDepartment(ClickEvent<Button> buttonClickEvent) {
@@ -166,10 +172,10 @@ public class PersonalView extends VerticalLayout {
     }
 
     private void handleCreateMedic(ClickEvent<Button> buttonClickEvent) {
-        MedicPersonalDialog medicPersonalDialog = new MedicPersonalDialog(medicPersonalService,
+        MedicDialog medicDialog = new MedicDialog(medicPersonalService,
                 hospitalService.getAll());
-        medicPersonalDialog.addListener(MedicPersonalDialog.UpdateMedicPersonalEvent.class, this::saveMedic);
-        medicPersonalDialog.open();
+        medicDialog.addListener(MedicDialog.UpdateMedicPersonalEvent.class, this::saveMedic);
+        medicDialog.open();
     }
 
     private void handleCreateEquipment(ClickEvent<Button> buttonClickEvent) {
@@ -202,13 +208,13 @@ public class PersonalView extends VerticalLayout {
         }
     }
 
-    private void saveMedic(MedicPersonalDialog.UpdateMedicPersonalEvent updateMedicPersonalEvent) {
+    private void saveMedic(MedicDialog.UpdateMedicPersonalEvent updateMedicPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateMedicPersonalEvent.getMedicPersonalDTO());
             medicPersonalService.save(updateMedicPersonalEvent.getMedicPersonalDTO());
             Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
-            medicPersonalGrid.setItems(medicPersonalService.getAll());
-            medicPersonalGrid.getListDataView().refreshAll();
+            medicGrid.setItems(medicPersonalService.getAll());
+            medicGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
             Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
@@ -216,13 +222,13 @@ public class PersonalView extends VerticalLayout {
     }
 
     @Transactional
-    private void saveEngineer(EngineerPersonalDialog.UpdateEngineerPersonalEvent updateEngineerPersonalEvent) {
+    private void saveEngineer(EngineerDialog.UpdateEngineerPersonalEvent updateEngineerPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateEngineerPersonalEvent.getEngineerPersonalDTO());
             engineerPersonalService.save(updateEngineerPersonalEvent.getEngineerPersonalDTO());
             Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
-            engineerPersonalGrid.setItems(engineerPersonalService.getAll());
-            engineerPersonalGrid.getListDataView().refreshAll();
+            engineerGrid.setItems(engineerPersonalService.getAll());
+            engineerGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
             Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
@@ -244,6 +250,6 @@ public class PersonalView extends VerticalLayout {
     private void deselectAll() {
         hospitalGrid.select(null);
         departmentGrid.select(null);
-        medicPersonalGrid.select(null);
+        medicGrid.select(null);
     }
 }

@@ -17,7 +17,6 @@ import static ru.viz.clinic.help.Translator.*;
 public abstract class VizConfirmDialog<T> extends ConfirmDialog {
     private final Button btnConfirm = new Button();
     protected final Binder<T> binder = new Binder<>();
-    ;
     protected final T item;
 
     public VizConfirmDialog(
@@ -26,7 +25,6 @@ public abstract class VizConfirmDialog<T> extends ConfirmDialog {
 
     ) {
         this.item = Objects.requireNonNull(item);
-        this.binder.readBean(Objects.requireNonNull(item));
         setHeader(Objects.requireNonNull(header));
         setConfirmButton(btnConfirm);
         setCancelable(true);
@@ -61,12 +59,12 @@ public abstract class VizConfirmDialog<T> extends ConfirmDialog {
     void confirmListener(ConfirmEvent confirmEvent) {
         if (binder.isValid()) {
             binder.writeBeanIfValid(Objects.requireNonNull(item));
-            firePersonalEvent();
+            handleConfirm();
             this.close();
         } else {
             Helper.showErrorNotification(ERR_MSG_INVALID_DATA);
         }
     }
 
-    protected abstract void firePersonalEvent();
+    protected abstract void handleConfirm();
 }

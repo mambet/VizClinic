@@ -7,6 +7,7 @@ import ru.viz.clinic.data.entity.Authority;
 
 import java.util.List;
 @Repository
-public interface AuthorityRepository extends JpaRepository<Authority, Long>, JpaSpecificationExecutor<Authority> {
+public interface AuthorityRepository extends JpaRepository<Authority, Long>, JpaSpecificationExecutor<Authority>
+{
     List<Authority> findByUsername(String username);
 }

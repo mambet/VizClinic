@@ -16,8 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import ru.viz.clinic.data.entity.Personal;
 import ru.viz.clinic.data.model.PersonalDTO;
 import ru.viz.clinic.data.repository.CommonRepository;
-import ru.viz.clinic.data.service.AbstractService;
-import ru.viz.clinic.help.Helper;
+import ru.viz.clinic.service.AbstractService;
 import ru.viz.clinic.data.Gender;
 
 import java.util.Arrays;
@@ -27,7 +26,7 @@ import static ru.viz.clinic.help.Regex.*;
 import static ru.viz.clinic.help.Translator.*;
 
 public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, R extends CommonRepository<P>> extends VizConfirmDialog<T> {
-    private static final int WORD_LENGTH = 4;
+    public static final int WORD_LENGTH = 4;
     private FormLayout formLayout;
     private TextField firstNameField;
     private TextField lastNameField;
@@ -42,8 +41,7 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
             @NotNull final T t,
             @NotNull final AbstractService<P, R, T> abstractService
     ) {
-        super(DLH_CREATE_MEDIC, t);
-        Objects.requireNonNull(t);
+        super(DLH_CREATE_MEDIC,  Objects.requireNonNull(t));
 
         genderField = new RadioButtonGroup<>(LBL_GENDER);
 
@@ -95,11 +93,9 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
         binder.forField(emailField)
                 .bind(PersonalDTO::getEmail, PersonalDTO::setEmail);
 
+        binder.readBean(t);
         formLayout = new FormLayout();
-
         this.add(formLayout);
-        binder.addValueChangeListener(this::fieldsChanges);
-        setBtnConfirmEnable(binder.isValid());
     }
 
     private void addFields() {
@@ -112,7 +108,5 @@ public abstract class PersonalDialog<T extends PersonalDTO, P extends Personal, 
         addFields();
     }
 
-    private void fieldsChanges(HasValue.ValueChangeEvent<?> valueChangeEvent) {
-        setBtnConfirmEnable(binder.isValid());
-    }
+
 }

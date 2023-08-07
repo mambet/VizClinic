@@ -32,13 +32,16 @@ public class DepartmentDialog extends VizConfirmDialog<Department> {
 
         binder.forField(departmentName).asRequired().bind(Department::getName, Department::setName);
         binder.forField(hospitalSelect).asRequired().bind(Department::getHospital, Department::setHospital);
+        binder.readBean(department);
 
         this.add(new FormLayout(hospitalSelect, departmentName));
     }
+
     @Override
-    protected void firePersonalEvent() {
+    protected void handleConfirm() {
         fireEvent(new UpdateDepartmentEvent(this, Objects.requireNonNull(item)));
     }
+
     public DepartmentDialog(@NotNull final List<Hospital> hospitals) {
         this(new Department(), hospitals);
     }

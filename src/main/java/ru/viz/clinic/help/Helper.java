@@ -34,7 +34,7 @@ public class Helper {
         HorizontalLayout layout = new HorizontalLayout(text, closeButton);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         notification.add(layout);
-        notification.setDuration(5000);
+        notification.setDuration(15000);
         notification.open();
         notification.setPosition(Notification.Position.BOTTOM_CENTER);
     }
