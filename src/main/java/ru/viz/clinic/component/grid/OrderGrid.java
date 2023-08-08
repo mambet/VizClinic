@@ -1,5 +1,6 @@
 package ru.viz.clinic.component.grid;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -9,26 +10,22 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
-import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.shared.Registration;
 import jakarta.validation.constraints.NotNull;
-import org.apache.logging.log4j.util.Strings;
+import lombok.Getter;
 import ru.viz.clinic.component.dialog.ShowRecordDialog;
-import ru.viz.clinic.converter.PersonalToStringConverter;
 import ru.viz.clinic.data.entity.Order;
 import ru.viz.clinic.data.entity.Personal;
 import ru.viz.clinic.data.entity.Record;
 import ru.viz.clinic.help.Translator;
-import ru.viz.clinic.service.OrderService;
 import ru.viz.clinic.service.RecordService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static ru.viz.clinic.converter.PersonalToStringConverter.convertToPresentation;
+import static ru.viz.clinic.help.Helper.getDateTimeRenderer;
 
 public abstract class OrderGrid extends Grid<Order> {
     private final RecordService recordService;
@@ -38,33 +35,37 @@ public abstract class OrderGrid extends Grid<Order> {
         this.recordService = Objects.requireNonNull(recordService);
 
         this.addColumn(Order::getId)
-                .setHeader(Translator.LBL_ID)
-                .setAutoWidth(true);
+                .setAutoWidth(true)
+                .setHeader(Translator.HDR_ID);
         this.addColumn(order -> order.getEquipment().getName())
-                .setHeader(Translator.LBL_EQUIPMENT)
-                .setAutoWidth(true);
+                .setAutoWidth(true)
+                .setHeader(Translator.HDR_EQUIPMENT);
         this.addColumn(Order::getDescription)
-                .setHeader(Translator.LBL_DESCRIPTION)
-                .setAutoWidth(true);
+                .setAutoWidth(true)
+                .setHeader(Translator.HDR_DESCRIPTION);
         this.addColumn(order -> convertToPresentation(order.getMedic()))
-                .setHeader(Translator.LBL_MEDIC)
-                .setAutoWidth(true);
-        this.addColumn(getRenderer(Order::getCreateTime))
-                .setHeader(Translator.LBL_CREATE_ORDER)
+                .setAutoWidth(true)
+                .setHeader(Translator.HDR_MEDIC);
+        this.addColumn(getDateTimeRenderer(Order::getCreateTime))
+                .setAutoWidth(true)
                 .setSortable(true)
-                .setComparator(Order::getCreateTime);
+                .setComparator(Order::getCreateTime)
+                .setHeader(Translator.HDR_CREATE_ORDER);
         this.addColumn(order -> convertToPresentation(order.getDestinationEngineers()))
-                .setHeader(Translator.LBL_DESTINATION_ENGINEER)
-                .setAutoWidth(true);
+                .setAutoWidth(true)
+                .setHeader(Translator.HDR_DESTINATION_ENGINEER);
         this.addColumn(order -> order.getOrderState().getValue())
-                .setHeader(Translator.LBL_STATE_ORDER)
-                .setSortable(true);
+                .setSortable(true)
+                .setHeader(Translator.HDR_STATE_ORDER);
         this.addColumn(order -> convertToPresentation(order.getOwnerEngineer()))
-                .setHeader(Translator.LBL_ORDER_TAKER);
-        this.addColumn(order ->  convertToPresentation(order.getFinishEngineer()))
-                .setHeader(Translator.LBL_ORDER_FINISHER);
-        this.addColumn(getRenderer(Order::getEndTime))
-                .setHeader(Translator.LBL_END_ORDER);
+                .setHeader(Translator.HDR_ORDER_TAKER);
+        this.addColumn(order -> convertToPresentation(order.getFinishEngineer()))
+                .setHeader(Translator.HDR_ORDER_FINISHER);
+        this.addColumn(getDateTimeRenderer(Order::getEndTime))
+                .setAutoWidth(true)
+                .setSortable(true)
+                .setComparator(Order::getEndTime)
+                .setHeader(Translator.HDR_END_ORDER);
         this.setPartNameGenerator(order -> {
             if (order.getOrderState() != null) {
                 switch (order.getOrderState()) {
@@ -87,13 +88,17 @@ public abstract class OrderGrid extends Grid<Order> {
         this.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
-    private static LocalDateTimeRenderer<Order> getRenderer(ValueProvider<Order, LocalDateTime> getTime) {
-        return new LocalDateTimeRenderer<>(getTime, "dd.MM.yyyy HH:mm");
-    }
     @Override
-    public GridListDataView<Order> setItems(Collection<Order> items) {
+    public GridListDataView<Order> setItems(@NotNull final Collection<Order> items) {
+        Objects.requireNonNull(items);
         GridListDataView<Order> recordGridListDataView = super.setItems(items);
-        this.getListDataView().setSortOrder(Order::getCreateTime, SortDirection.DESCENDING);
+        this.getListDataView().setSortOrder(record -> {
+            if (record.getCreateTime() == null) {
+                return LocalDateTime.now();
+            } else {
+                return record.getCreateTime();
+            }
+        }, SortDirection.DESCENDING);
         return recordGridListDataView;
     }
 
@@ -113,47 +118,16 @@ public abstract class OrderGrid extends Grid<Order> {
         return getEventBus().addListener(eventType, listener);
     }
 
-    public static class PersonFilter<T extends Personal> {
-        public final GridListDataView<T> dataView;
-        private String firstName;
-        private String email;
-        private String userName;
+    @Getter
+    public abstract static class OrderAbstractEvent<T extends Component> extends ComponentEvent<T> {
+        private final Order order;
 
-        public PersonFilter(GridListDataView<T> dataView) {
-            this.dataView = dataView;
-            this.dataView.addFilter(this::test);
-        }
-
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-            this.dataView.refreshAll();
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-            this.dataView.refreshAll();
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-            this.dataView.refreshAll();
-        }
-
-        public boolean test(T person) {
-            boolean matchesFirstname = matches(person.getFirstName(), firstName);
-            boolean matchesEmail = matches(person.getEmail(), email);
-            boolean matchesUsername = matches(person.getUsername(),
-                    userName);
-
-            return matchesFirstname && matchesEmail && matchesUsername;
-        }
-
-        private boolean matches(
-                String value,
-                String searchTerm
+        protected OrderAbstractEvent(
+                @NotNull final T source,
+                @NotNull final Order order
         ) {
-            return searchTerm == null || searchTerm.isEmpty()
-                    || value.toLowerCase().contains(searchTerm.toLowerCase());
+            super(Objects.requireNonNull(source), false);
+            this.order = Objects.requireNonNull(order);
         }
     }
 }

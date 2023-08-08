@@ -45,8 +45,6 @@ public class AdminOrderView extends OrderView<AdminOrderGrid> {
         this.orderGrid = new AdminOrderGrid(Objects.requireNonNull(recordService));
         this.orderGrid.setItems(orderService.getAll());
         this.orderGrid.getListDataView().refreshAll();
-        TopicBox topicBox = new TopicBox(DLH_ORDER, orderGrid);
-        topicBox.setHeightFull();
-        this.add(topicBox);
+        this.add(orderGrid);
     }
 }

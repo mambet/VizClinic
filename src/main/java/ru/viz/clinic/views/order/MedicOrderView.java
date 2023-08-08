@@ -13,6 +13,8 @@ import ru.viz.clinic.component.grid.MedicOrderGrid;
 import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.data.EventType;
+import ru.viz.clinic.help.Helper;
+import ru.viz.clinic.help.Translator;
 import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.service.OrderService;
 import ru.viz.clinic.service.PersonalService;
@@ -25,8 +27,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static ru.viz.clinic.help.Translator.BTN_CONFIRM_CREATE_PLUS;
-import static ru.viz.clinic.help.Translator.DLH_ORDER;
+import static ru.viz.clinic.help.Translator.*;
 
 @PageTitle("Заявки")
 @Route(value = "MedicOrderView", layout = MainLayout.class)
@@ -52,7 +53,7 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
         this.orderGrid.setItems(orderService.getByDepartment(medic.getDepartment().getId()));
         this.orderGrid.addListener(MedicOrderGrid.CloseEvent.class, this::handleCloseEvent);
         this.orderGrid.addListener(MedicOrderGrid.EditEvent.class, this::handleEditEvent);
-        this.add(new TopicBox(DLH_ORDER, createOrderButton(), orderGrid));
+        this.add(createOrderButton(), orderGrid);
     }
 
     private Button createOrderButton() {
@@ -103,16 +104,22 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
     private void createOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
         order.setOrderState(OrderState.READY);
-        recordService.createRecord(EventType.START_ORDER, medic, saveOrder(order));
-        updateGrid();
+        saveOrder(order).ifPresent(savedOrder -> {
+            recordService.createRecord(EventType.START_ORDER, medic, savedOrder);
+            updateGrid();
+            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_SAVED);
+        });
     }
 
     private void updateOrder(
             @NotNull final Order order
     ) {
         Objects.requireNonNull(order);
-        recordService.createRecord(EventType.UPDATE_ORDER, medic, saveOrder(order));
-        updateGrid();
+        saveOrder(order).ifPresent(savedOrder -> {
+            recordService.createRecord(EventType.UPDATE_ORDER, medic, savedOrder);
+            updateGrid();
+            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_MODIFIED);
+        });
     }
 
     private void closeOrder(
@@ -122,7 +129,12 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
         order.setFinishEngineer(order.getOwnerEngineer());
         order.setOwnerEngineer(null);
         order.setEndTime(LocalDateTime.now());
-        recordService.createRecord(EventType.FINISH_ORDER, medic, saveOrder(order));
+
+        saveOrder(order).ifPresent(savedOrder -> {
+            recordService.createRecord(EventType.FINISH_ORDER, medic, savedOrder);
+            updateGrid();
+            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_CLOSED);
+        });
         updateGrid();
     }
 

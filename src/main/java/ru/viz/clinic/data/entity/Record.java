@@ -2,6 +2,7 @@ package ru.viz.clinic.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.viz.clinic.data.EventType;
 
@@ -23,8 +24,8 @@ public class Record extends AbstractEntity {
     private String person;
     @Column(name = "comment", length = 1000)
     private String comment;
-    @UpdateTimestamp
-    private LocalDateTime eventTime;
+    @CreationTimestamp
+    private LocalDateTime recordTime;
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;

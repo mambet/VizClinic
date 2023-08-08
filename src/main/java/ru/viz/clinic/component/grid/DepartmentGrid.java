@@ -13,16 +13,16 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Translator.HDR_DEPARTMENT;
 import static ru.viz.clinic.help.Translator.HDR_HOSPITAL;
 
-public class DepartmentGridFilter extends Grid<Department> implements HospitalGridFilterUpdater {
+public class DepartmentGrid extends Grid<Department> implements HospitalGridFilterUpdater {
     private DepartmentFilter departmentFilter;
 
-    public DepartmentGridFilter() {
+    public DepartmentGrid() {
         createTable();
     }
 
     @Override
     public void setHospitalFilterParameter(Hospital hospital) {
-     departmentFilter.setHospital(hospital);
+        departmentFilter.setHospital(hospital);
         this.getListDataView().refreshAll();
     }
 
@@ -33,6 +33,8 @@ public class DepartmentGridFilter extends Grid<Department> implements HospitalGr
         this.addColumn(department -> department.getHospital() != null ? department.getHospital().getName() :
                 Strings.EMPTY).setHeader(HDR_HOSPITAL);
         this.setAllRowsVisible(true);
+        this.addClassName("select");
+        this.addClassName("primary");
     }
 
     @Override

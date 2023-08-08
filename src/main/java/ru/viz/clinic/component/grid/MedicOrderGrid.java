@@ -17,6 +17,8 @@ import ru.viz.clinic.service.RecordService;
 
 import java.util.Objects;
 
+import static ru.viz.clinic.help.Translator.*;
+
 public class MedicOrderGrid extends OrderGrid {
     public MedicOrderGrid(@NotNull final RecordService recordService) {
         super(Objects.requireNonNull(recordService));
@@ -32,41 +34,26 @@ public class MedicOrderGrid extends OrderGrid {
                 layout.add(closeOrderButton(order));
             }
             layout.add(showRecords(order));
-        })).setHeader("Manage");
+        })).setAutoWidth(true);
     }
 
     private Button editOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
         Button button = new Button(new Icon(VaadinIcon.EDIT));
-        button.setTooltipText("Изменить");
-        button.addClickListener(e -> {
-            fireEvent(new EditEvent(this, order));
-        });
+        button.setTooltipText(TTP_MODIFY_ORDER);
+        button.addClickListener(e -> fireEvent(new EditEvent(this, order)));
         return button;
     }
 
     private Button closeOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
         Button button = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
-        button.setTooltipText("Закрыть");
-        button.addClickListener(e -> {
-            fireEvent(new CloseEvent(this, order));
-        });
+        button.setTooltipText(TTP_CLOSE_ORDER);
+        button.addClickListener(e -> fireEvent(new CloseEvent(this, order)));
         return button;
     }
 
-    @Getter
-    public abstract static class OrderAbstractEvent<T extends Component> extends ComponentEvent<T> {
-        private final Order order;
 
-        protected OrderAbstractEvent(
-                @NotNull final T source,
-                @NotNull final Order order
-        ) {
-            super(Objects.requireNonNull(source), false);
-            this.order = Objects.requireNonNull(order);
-        }
-    }
 
     public static class EditEvent extends OrderAbstractEvent<MedicOrderGrid> {
         public EditEvent(

@@ -20,7 +20,7 @@ public class AdminOrderGrid extends OrderGrid {
     public void customize() {
         this.addColumn(new ComponentRenderer<>(HorizontalLayout::new, (layout, order) -> {
             layout.add(showRecords(order));
-        })).setHeader("Manage");
+        })).setAutoWidth(true);
     }
 
 }

@@ -6,6 +6,8 @@ import ru.viz.clinic.data.entity.Order;
 
 import java.util.function.BiConsumer;
 
+import static ru.viz.clinic.help.Translator.*;
+
 @Log4j2
 public class RecordCreateLeaveDialog extends RecordDialog {
     public RecordCreateLeaveDialog(
@@ -13,6 +15,7 @@ public class RecordCreateLeaveDialog extends RecordDialog {
             @NotNull final BiConsumer<Order, String> leaveOrder
 
     ) {
+        super(DLH_LEAVE_ORDER, BTN_LEAVE_ORDER);
         addConfirmListener(confirmEvent -> leaveOrder.accept(order, commentTextArea.getValue()));
     }
 }

@@ -40,6 +40,8 @@ public class EquipmentGrid extends Grid<Equipment> implements DepartmentGridFilt
         this.addColumn(Equipment::getNumberNext);
         this.addColumn(Equipment::getCreateDate);
         this.setAllRowsVisible(true);
+               this.addClassName("select");
+        this.addClassName("primary");
     }
 
     public static class EquipmentFilter {

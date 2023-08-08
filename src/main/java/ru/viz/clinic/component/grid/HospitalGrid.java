@@ -27,5 +27,7 @@ public class HospitalGrid extends Grid<Hospital> {
                         hospital -> hospital.getAddress() != null ? hospital.getAddress().toString() : Strings.EMPTY)
                 .setHeader(HDR_DEPARTMENT);
         this.setAllRowsVisible(true);
+               this.addClassName("select");
+        this.addClassName("primary");
     }
 }

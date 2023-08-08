@@ -41,7 +41,7 @@ public class PersonalView extends VerticalLayout {
     private final Grid<Hospital> hospitalGrid;
     private final MedicGrid medicGrid;
     private final EngineerGrid engineerGrid;
-    private final DepartmentGridFilter departmentGrid;
+    private final DepartmentGrid departmentGrid;
     private final EquipmentGrid equipmentGrid;
 
     public PersonalView(
@@ -62,7 +62,7 @@ public class PersonalView extends VerticalLayout {
         this.hospitalGrid = new HospitalGrid();
         this.medicGrid = new MedicGrid();
         this.engineerGrid = new EngineerGrid();
-        this.departmentGrid = new DepartmentGridFilter();
+        this.departmentGrid = new DepartmentGrid();
         this.equipmentGrid = new EquipmentGrid();
 
         this.hospitalGrid.setItems(hospitalService.getAll());
@@ -102,23 +102,23 @@ public class PersonalView extends VerticalLayout {
     }
 
     private TopicBox getHospitalTopicBox() {
-        return new TopicBox(DLH_HOSPITAL, createHospitalButton(), hospitalGrid);
+        return TopicBox.getInstanceWithEye(DLH_HOSPITAL, createHospitalButton(), hospitalGrid);
     }
 
     private TopicBox getDepartmentTopicBox() {
-        return new TopicBox(DLH_DEPARTMENT, createDepartmentButton(), departmentGrid);
+        return TopicBox.getInstanceWithEye(DLH_DEPARTMENT, createDepartmentButton(), departmentGrid);
     }
 
     private TopicBox getEngineerTopicBox() {
-        return new TopicBox(DLH_ENGINEER, getCreateEngineerButton(), engineerGrid);
+        return TopicBox.getInstanceWithEye(DLH_ENGINEER, getCreateEngineerButton(), engineerGrid);
     }
 
     private TopicBox getMedicTopicBox() {
-        return new TopicBox(DLH_MEDIC, getCreateMedicButton(), medicGrid);
+        return TopicBox.getInstanceWithEye(DLH_MEDIC, getCreateMedicButton(), medicGrid);
     }
 
     private TopicBox getEquipmentTopicBox() {
-        return new TopicBox(DLH_EQUIPMENT, getCreateEquipmentButton(), equipmentGrid);
+        return TopicBox.getInstanceWithEye(DLH_EQUIPMENT, getCreateEquipmentButton(), equipmentGrid);
     }
 
     private Button createHospitalButton() {

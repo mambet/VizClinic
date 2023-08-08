@@ -8,6 +8,7 @@ html {
   --lumo-primary-color: hsl(265, 90%, 52%);
   --lumo-primary-color-50pct: hsla(265, 90%, 52%, 0.5);
   --lumo-primary-color-10pct: hsla(265, 90%, 52%, 0.1);
+  --viz-background-primary: #1b2635;
 }
 
 vaadin-grid::part(done) {
@@ -26,3 +27,16 @@ vaadin-grid::part(font-weight-bold) {
     font-weight: bold;
 }
 
+.custom-vertical-layout {
+  background-color: var(--viz-background-primary);
+  border: 1px solid #1c2837;
+  border-radius: 7px;
+}
+
+vaadin-grid.primary::part(cell){
+  background: var(--viz-background-primary);
+}
+
+vaadin-grid.select::part(selected-row-cell){
+    background: var(--lumo-primary-color-10pct);
+}

@@ -11,6 +11,7 @@ import ru.viz.clinic.data.EventType;
 import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Order;
+import ru.viz.clinic.help.Helper;
 import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.service.OrderService;
 import ru.viz.clinic.service.PersonalService;
@@ -20,7 +21,7 @@ import ru.viz.clinic.views.MainLayout;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static ru.viz.clinic.help.Translator.DLH_ORDER;
+import static ru.viz.clinic.help.Translator.*;
 
 @PageTitle("Заявки")
 @Route(value = "EngineerOrderView", layout = MainLayout.class)
@@ -47,7 +48,7 @@ public class EngineerOrderView extends OrderView<EngineerOrderGrid> {
         this.orderGrid.addListener(EngineerOrderGrid.CommentEvent.class, this::handleCommentEvent);
         this.orderGrid.addListener(EngineerOrderGrid.LeaveEvent.class, this::handleLeaveEvent);
 
-        this.add(new TopicBox(DLH_ORDER, orderGrid));
+        this.add(orderGrid);
     }
 
     private Engineer getEngineer() {
@@ -65,9 +66,13 @@ public class EngineerOrderView extends OrderView<EngineerOrderGrid> {
         Order order = Objects.requireNonNull(event.getOrder());
         order.setOwnerEngineer(engineer);
         order.setOrderState(OrderState.WORKING);
-        recordService.createRecord(EventType.ADOPT_ORDER, engineer, saveOrder(order));
-        updateGrid();
-        log.info("adopt order id {}", order.getId());
+        saveOrder(order).ifPresent(savedOrder -> {
+            recordService.createRecord(EventType.ADOPT_ORDER, engineer,  savedOrder); //TODO return optional and handle
+            updateGrid();
+            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_ADOPT);
+            log.info("adopt order id {}", order.getId());
+        });
+
     }
 
     private void handleCommentEvent(@NotNull final EngineerOrderGrid.CommentEvent event) {
@@ -83,9 +88,12 @@ public class EngineerOrderView extends OrderView<EngineerOrderGrid> {
         Order order = Objects.requireNonNull(event.getOrder());
         order.setOwnerEngineer(null);
         event.getOrder().setOrderState(OrderState.READY);
-        recordService.createRecord(EventType.LIVE_ORDER, engineer, saveOrder(order), event.getComment());
-        updateGrid();
-        log.info("leave order id {}", order.getId());
+        saveOrder(order).ifPresent(savedOrder -> {
+            recordService.createRecord(EventType.LIVE_ORDER, engineer, savedOrder, event.getComment());
+            updateGrid();
+            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_LEAVED);
+            log.info("leave order id {}", order.getId());
+        });
     }
 
     private void updateGrid() {

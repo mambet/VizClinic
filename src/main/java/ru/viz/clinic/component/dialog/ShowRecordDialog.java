@@ -8,16 +8,14 @@ import ru.viz.clinic.data.entity.Record;
 
 import java.util.Set;
 
+import static ru.viz.clinic.help.Translator.BTN_CANCEL;
+
 public class ShowRecordDialog extends ConfirmDialog {
     private static final int WIDTH = 1000;
-    private static final int HEIGHT = 700;
 
     public ShowRecordDialog(@NotNull final Set<Record> records) {
-        RecordGrid recordGrid = new RecordGrid();
-        recordGrid.setItems(records);
-
+        this.setConfirmText(BTN_CANCEL);
         this.setWidth(WIDTH, Unit.PIXELS);
-        this.setHeight(HEIGHT, Unit.PIXELS);
-        this.add(recordGrid);
+        this.add(new RecordGrid(records));
     }
 }

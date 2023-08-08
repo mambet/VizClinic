@@ -16,6 +16,7 @@ import ru.viz.clinic.service.PersonalService;
 import ru.viz.clinic.service.RecordService;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
     protected final OrderService orderService;
@@ -36,14 +37,14 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
         this.authenticationService = Objects.requireNonNull(authenticationService);
     }
 
-    protected Order saveOrder(@NotNull final Order order) {
-        Order savedOrder = null;
+    protected Optional<Order> saveOrder(@NotNull final Order order) {
         try {
-            savedOrder = orderService.save(order);
-            Helper.showSuccessNotification(Translator.MSG_HOSPITAL_SUCCESS_SAVED);
+            return Optional.of(orderService.save(order));
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));//TODO log ausgabe anstatt
+            // Notification
         }
-        return savedOrder;
+
+        return Optional.empty();
     }
 }

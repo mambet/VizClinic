@@ -32,7 +32,7 @@ public class OrderDialog extends VizConfirmDialog<Order> {
         engineerSelect.setItemLabelGenerator(engineer -> engineer.getFirstName() + " " + engineer.getLastName());
         engineerSelect.setItems(engineers);
 
-        equipmentSelect.setLabel(LBL_EQUIPMENT);
+        equipmentSelect.setLabel(HDR_EQUIPMENT);
         equipmentSelect.setItemLabelGenerator(Equipment::getName);
         equipmentSelect.setItems(equipments);
 

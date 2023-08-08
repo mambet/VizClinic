@@ -7,19 +7,19 @@ import ru.viz.clinic.data.entity.Personal;
 import ru.viz.clinic.help.Translator;
 
 public class PersonGrid<T extends Personal> extends Grid<T> {
-
     public PersonGrid() {
-        this.addColumn(Personal::getUsername).setHeader(Translator.LBL_USER);
-        this.addColumn(Personal::getFirstName).setHeader(Translator.LBL_FIRST_NAME);
-        this.addColumn(Personal::getLastName).setHeader(Translator.LBL_LAST_NAME);
-        this.addColumn(Personal::getPhone).setHeader(Translator.LBL_PHONE);
-        this.addColumn(Personal::getBirthDate).setHeader(Translator.LBL_BIRTHDAY);
+        this.addColumn(Personal::getUsername).setHeader(Translator.LBL_USER).setAutoWidth(true);
+        this.addColumn(Personal::getFirstName).setHeader(Translator.LBL_FIRST_NAME).setAutoWidth(true);
+        this.addColumn(Personal::getLastName).setHeader(Translator.LBL_LAST_NAME).setAutoWidth(true);
+        this.addColumn(Personal::getPhone).setHeader(Translator.LBL_PHONE).setAutoWidth(true);
+        this.addColumn(Personal::getBirthDate).setHeader(Translator.LBL_BIRTHDAY).setAutoWidth(true);
         this.addColumn(person -> person.getGender() != null ? person.getGender().getGenderAsString() : Strings.EMPTY)
                 .setHeader(Translator.LBL_GENDER);
         this.setAllRowsVisible(true);
         this.setSelectionMode(Grid.SelectionMode.NONE);
+               this.addClassName("select");
+        this.addClassName("primary");
     }
-
 
     public static class PersonFilter<T extends Personal> {
         public final GridListDataView<T> dataView;

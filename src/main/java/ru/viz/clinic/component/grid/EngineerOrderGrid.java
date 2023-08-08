@@ -18,6 +18,8 @@ import ru.viz.clinic.service.RecordService;
 
 import java.util.Objects;
 
+import static ru.viz.clinic.help.Translator.*;
+
 public class EngineerOrderGrid extends OrderGrid {
     private final Engineer engineer;
 
@@ -42,7 +44,7 @@ public class EngineerOrderGrid extends OrderGrid {
                 layout.add(commentOrderButton(order), leaveOrderButton(order));
             }
             layout.add(showRecords(order));
-        })).setHeader("Manage").setAutoWidth(true);
+        })).setAutoWidth(true);
     }
 
     public void commentOrder(
@@ -63,7 +65,7 @@ public class EngineerOrderGrid extends OrderGrid {
     private Button adoptOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
         Button button = new Button(new Icon(VaadinIcon.SCREWDRIVER));
-        button.setTooltipText("Принять");
+        button.setTooltipText(TTP_ADOPT_ORDER);
         button.addClickListener(e -> {
             fireEvent(new AdoptEvent(this, order));
         });
@@ -75,7 +77,7 @@ public class EngineerOrderGrid extends OrderGrid {
         Button button = new Button(new Icon(VaadinIcon.EXIT_O), e -> {
             new RecordCreateLeaveDialog(Objects.requireNonNull(order), this::leaveOrder).open();
         });
-        button.setTooltipText("Вернуть");
+        button.setTooltipText(TTP_LEAVE_ORDER);
         return button;
     }
 
@@ -83,21 +85,8 @@ public class EngineerOrderGrid extends OrderGrid {
     private Button commentOrderButton(@NotNull final Order order) {
         Button button = new Button(new Icon(VaadinIcon.COMMENT_O),
                 e -> new RecordCreateCommentDialog(Objects.requireNonNull(order), this::commentOrder).open());
-        button.setTooltipText("Комментировать");
+        button.setTooltipText(TTP_COMMENT_ORDER);
         return button;
-    }
-
-    @Getter
-    public abstract static class OrderAbstractEvent<T extends Component> extends ComponentEvent<T> {
-        private final Order order;
-
-        protected OrderAbstractEvent(
-                @NotNull final T source,
-                @NotNull final Order order
-        ) {
-            super(Objects.requireNonNull(source), false);
-            this.order = Objects.requireNonNull(order);
-        }
     }
 
     public static class AdoptEvent extends OrderAbstractEvent<EngineerOrderGrid> {
@@ -119,7 +108,7 @@ public class EngineerOrderGrid extends OrderGrid {
                 @NotNull final String comment
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(order));
-            this.comment = comment;
+            this.comment = Objects.requireNonNull(comment);
         }
     }
 
@@ -134,7 +123,7 @@ public class EngineerOrderGrid extends OrderGrid {
 
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(order));
-            this.comment = comment;
+            this.comment = Objects.requireNonNull(comment);
         }
     }
 }

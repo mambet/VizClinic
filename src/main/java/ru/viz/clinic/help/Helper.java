@@ -9,20 +9,31 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
+import com.vaadin.flow.function.ValueProvider;
+import jakarta.validation.constraints.NotNull;
+import ru.viz.clinic.data.entity.Order;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Helper {
-    public static void showErrorNotification(String message) {
-        extracted(message, NotificationVariant.LUMO_ERROR);
+    public static void showErrorNotification(@NotNull final String message) {
+        Objects.requireNonNull(message);
+        showNotification(message, NotificationVariant.LUMO_ERROR);
     }
 
-    public static void showSuccessNotification(String message) {
-        extracted(message, NotificationVariant.LUMO_SUCCESS);
+    public static void showSuccessNotification(@NotNull final String message) {
+        Objects.requireNonNull(message);
+        showNotification(message, NotificationVariant.LUMO_SUCCESS);
     }
 
-    private static void extracted(
-            String message,
-            NotificationVariant lumoStyle
+    private static void showNotification(
+            @NotNull final String message,
+            @NotNull final NotificationVariant lumoStyle
     ) {
+        Objects.requireNonNull(message);
+        Objects.requireNonNull(lumoStyle);
         Div text = new Div(new Text(message));
         Notification notification = new Notification();
         notification.addThemeVariants(lumoStyle);
@@ -37,5 +48,9 @@ public class Helper {
         notification.setDuration(15000);
         notification.open();
         notification.setPosition(Notification.Position.BOTTOM_CENTER);
+    }
+
+    public static <T> LocalDateTimeRenderer<T> getDateTimeRenderer(@NotNull final ValueProvider<T, LocalDateTime> getTime) {
+        return new LocalDateTimeRenderer<>(getTime, "dd.MM.yyyy HH:mm");
     }
 }
