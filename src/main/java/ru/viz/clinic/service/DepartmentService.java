@@ -1,5 +1,6 @@
 package ru.viz.clinic.service;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.viz.clinic.data.entity.Department;
@@ -26,8 +27,11 @@ public class DepartmentService {
         return departmentRepository.findAll();
     }
 
+    public List<Department> getByHospital(@NotNull final Long hospitalId) {
+        return departmentRepository.getByHospitalId(hospitalId);
+    }
     // Get hospital by ID
-    public Department getHospitalDepartmentById(Long id) {
+    public Department getById(Long id) {
         return departmentRepository.findById(id).orElse(null);
     }
 

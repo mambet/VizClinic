@@ -32,21 +32,18 @@ public class AuthenticationService {
     private final AuthenticationContext authenticationContext;
     private final AuthenticationManager authenticationManager;
     private final JdbcUserDetailsManager jdbcUserDetailsManager;
-    private final PersonalService personalService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthenticationService(
             @NotNull final AuthenticationContext authenticationContext,
             @NotNull final AuthenticationManager authenticationManager,
             @NotNull final JdbcUserDetailsManager jdbcUserDetailsManager,
-            @NotNull final PersonalService personalService,
             @NotNull final PasswordEncoder passwordEncoder
 
     ) {
         this.authenticationContext = Objects.requireNonNull(authenticationContext);
         this.authenticationManager = Objects.requireNonNull(authenticationManager);
         this.jdbcUserDetailsManager = Objects.requireNonNull(jdbcUserDetailsManager);
-        this.personalService = Objects.requireNonNull(personalService);
         this.passwordEncoder = Objects.requireNonNull(passwordEncoder);
     }
 
@@ -100,22 +97,7 @@ public class AuthenticationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void updatePassAndRole(
-            @NotNull final String currentPass,
-            @NotNull final String newPass
-    ) {
-        getUserDetails().ifPresentOrElse(userDetails ->
-                        personalService.getLoggedPersonal(userDetails).ifPresentOrElse(personal -> {
-                                    updatePassAndRole(currentPass, newPass, personal);
-                                },
-                                () -> {
-                                    throw new RuntimeException("no logged user");
-                                }),
-                () -> {
-                    throw new RuntimeException("no person for logged user");
-                });
-    }
+
 
     public Optional<Role> getLoggedUserRole() {
         return getLoggedUserAuthority()
@@ -138,25 +120,10 @@ public class AuthenticationService {
         return atomicReference.get();
     }
 
-    private void updatePassAndRole(
-            @NotNull final String currentPass,
-            @NotNull final String newPass,
-            @NotNull final Personal personal
-    ) {
-        Objects.requireNonNull(currentPass);
-        Objects.requireNonNull(newPass);
-        Objects.requireNonNull(personal);
-        if (personal instanceof final Engineer engineer) {
-            updatePassAndRole(engineer.getUsername(), Set.of(Role.ENGINEER), currentPass, newPass);
-        } else if (personal instanceof final Medic medic) {
-            updatePassAndRole(medic.getUsername(), Set.of(Role.MEDIC), currentPass, newPass);
-        } else {
-            throw new RuntimeException("personal is not instance of Engineer or Medic");
-        }
-    }
+
 
     @Transactional
-    private void updatePassAndRole(
+    public void updatePassAndRole(
             @NotNull final String username,
             @NotNull final Set<Role> roles,
             @NotNull final String currentPass,

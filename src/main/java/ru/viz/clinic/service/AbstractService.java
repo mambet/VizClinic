@@ -12,10 +12,9 @@ import ru.viz.clinic.data.repository.CommonRepository;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class AbstractService<E extends Personal, R extends CommonRepository<E>, D extends  PersonalDTO> implements CommonService<E> {
+public abstract class AbstractService<E extends Personal, R extends CommonRepository<E>, D extends PersonalDTO> implements CommonService<E> {
     private final Class<E> eClass;
     protected final R repository;
-
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -34,8 +33,12 @@ public abstract class AbstractService<E extends Personal, R extends CommonReposi
         repository.save(modelMapper.map(personalDTO, eClass));
     }
 
-    public List<E> findByUsername(String name) {
-        return repository.findByUsername(name);
+    public Optional<E> findByUsername(String name) {
+        E byUsername = repository.findByUsername(name);
+        if (byUsername != null) {
+            return Optional.of(byUsername);
+        }
+        return Optional.empty();
     }
 
     public Optional<E> get(Long id) {
@@ -45,7 +48,6 @@ public abstract class AbstractService<E extends Personal, R extends CommonReposi
     public E update(E personal) {
         return repository.save(personal);
     }
-
 
     public void delete(Long id) {
         repository.deleteById(id);
@@ -62,7 +64,6 @@ public abstract class AbstractService<E extends Personal, R extends CommonReposi
     public List<E> getAll() {
         return repository.findAll();
     }
-
 
     @Override
     public Optional<E> save(E personal) {

@@ -52,6 +52,6 @@ public class Order extends AbstractEntity {
     private LocalDateTime updateTime;
     @Column(name = "end_time")
     private LocalDateTime endTime;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Record> records;
 }

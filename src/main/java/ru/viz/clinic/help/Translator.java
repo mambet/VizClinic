@@ -4,6 +4,7 @@ public class Translator {
     //Button
     public static final String BTN_CANCEL = "Выйти";
     public static final String BTN_CONFIRM_CREATE = "Создать";
+    public static final String BTN_CLOSE_ORDER = "Закрыть заявку";
     public static final String BTN_CONFIRM_CREATE_PLUS = "+ Создать";
     public static final String BTN_CREATE_HOSPITAL = "+ Создать клинику";
     public static final String BTN_CREATE_DEPARTMENT = "+ Создать отдедение";
@@ -37,6 +38,7 @@ public class Translator {
     public static final String DLH_CREATE_DEPARTMENT = "Создать отделение";
     public static final String DLH_CREATE_ENGINEER = "Создать инженера";
     public static final String DLH_CREATE_ORDER = "Создать заявку";
+    public static final String DLH_CLOSE_ORDER = "Закрыть заявку";
     public static final String DLH_HOSPITAL = "Клиника";
     public static final String DLH_DEPARTMENT = "Отделение";
     public static final String DLH_MEDIC = "Медработник";
@@ -52,15 +54,23 @@ public class Translator {
     public static final String ERR_MSG_USER_NAME_IS_SHORT = "Пользователь должен быть минимум 4 знака";
     public static final String ERR_MSG_PASS_NAME_IS_SHORT = "Пароль должен быть минимум 4 знака";
     public static final String ERR_MSG_INVALID_DATA = "Данные введены неверно";
+    public static final String ERR_MSG_RECORD_UPDATE_FAILED = "Протокол не обновлен";
+    public static final String ERR_MSG_ORDER_ADOPT_FAILED= "Заявка не принята";
+    public static final String ERR_ORDER_SAVED_FAILED = "Ошибка при сохранении заявки";
+    public static final String ERR_RECORD_SAVED_FAILED = "Ошибка при сохранении протокола";
     //Messages
-    public static final String MSG_PERSON_SUCCESS_SAVED = "Пользователь успешно создан";
     public static final String MSG_HOSPITAL_SUCCESS_SAVED = "Клиника успешно создана";
-    public static final String MSG_ORDER_SUCCESS_SAVED = "Заявка успешно создана";
+    public static final String MSG_DEPARTMENT_SUCCESS_SAVED = "Отделение успешно создано";
+    public static final String MSG_ENGINEER_SUCCESS_SAVED = "Инженер успешно создан";
+    public static final String MSG_MEDIC_SUCCESS_SAVED = "Медработник успешно создан";
+    public static final String MSG_EQUIPMENT_SUCCESS_SAVED = "Оборудование успешно создано";
+    public static final String MSG_ORDER_SUCCESS_SAVED = "Заявка успешно сохранена";
     public static final String MSG_ORDER_SUCCESS_ADOPT = "Заявка успешно принята";
     public static final String MSG_ORDER_SUCCESS_LEAVED = "Заявка отдана";
     public static final String MSG_ORDER_SUCCESS_MODIFIED = "Заявка успешно изменена";
     public static final String MSG_ORDER_SUCCESS_CLOSED = "Заявка успешно закрыта";
-    public static final String MSG_DEPARTMENT_SUCCESS_SAVED = "Отделение успешно создано";
+    public static final String MSG_CLOSE_ORDER_QUESTION = "Вы действительно хотите закрыть заявку?";
+    public static final String MSG_RECORD_UPDATED = "Протокол обновлен";
     //Menu Items
     public static final String MIT_PERSONAL = "Персонал";
     public static final String MIT_HOSPITAL = "Клиника";

@@ -34,14 +34,9 @@ import static ru.viz.clinic.help.Translator.*;
 public class AdminOrderView extends OrderView<AdminOrderGrid> {
     public AdminOrderView(
             @NotNull final OrderService orderService,
-            @NotNull final RecordService recordService,
-            @NotNull final PersonalService personalService,
-            @NotNull final AuthenticationService authenticationService
+            @NotNull final RecordService recordService
     ) {
-        super(Objects.requireNonNull(orderService),
-                Objects.requireNonNull(recordService),
-                Objects.requireNonNull(personalService),
-                Objects.requireNonNull(authenticationService));
+        super(Objects.requireNonNull(orderService), Objects.requireNonNull(recordService));
         this.orderGrid = new AdminOrderGrid(Objects.requireNonNull(recordService));
         this.orderGrid.setItems(orderService.getAll());
         this.orderGrid.getListDataView().refreshAll();

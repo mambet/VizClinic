@@ -1,7 +1,5 @@
 package ru.viz.clinic.component.grid;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -9,8 +7,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import ru.viz.clinic.component.dialog.RecordCreateCommentDialog;
-import ru.viz.clinic.component.dialog.RecordCreateLeaveDialog;
+import ru.viz.clinic.component.dialog.CommentRecordDialog;
+import ru.viz.clinic.component.dialog.LeaveRecordDialog;
 import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Order;
@@ -75,7 +73,7 @@ public class EngineerOrderGrid extends OrderGrid {
     //for Engineer
     private Button leaveOrderButton(@NotNull final Order order) {
         Button button = new Button(new Icon(VaadinIcon.EXIT_O), e -> {
-            new RecordCreateLeaveDialog(Objects.requireNonNull(order), this::leaveOrder).open();
+            new LeaveRecordDialog(Objects.requireNonNull(order), this::leaveOrder).open();
         });
         button.setTooltipText(TTP_LEAVE_ORDER);
         return button;
@@ -84,7 +82,7 @@ public class EngineerOrderGrid extends OrderGrid {
     //for Engineer
     private Button commentOrderButton(@NotNull final Order order) {
         Button button = new Button(new Icon(VaadinIcon.COMMENT_O),
-                e -> new RecordCreateCommentDialog(Objects.requireNonNull(order), this::commentOrder).open());
+                e -> new CommentRecordDialog(Objects.requireNonNull(order), this::commentOrder).open());
         button.setTooltipText(TTP_COMMENT_ORDER);
         return button;
     }

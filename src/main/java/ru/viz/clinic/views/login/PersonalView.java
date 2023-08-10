@@ -10,6 +10,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.component.dialog.*;
 import ru.viz.clinic.component.grid.*;
@@ -31,12 +32,13 @@ import static ru.viz.clinic.help.Translator.*;
 @PageTitle("Personal")
 @Route(value = "Personal", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
+@Slf4j
 public class PersonalView extends VerticalLayout {
     private final AuthenticationService authenticationService;
     private final HospitalService hospitalService;
-    private final EngineerPersonalService engineerPersonalService;
+    private final EngineerService engineerService;
     private final DepartmentService departmentService;
-    private final MedicPersonalService medicPersonalService;
+    private final MedicService medicService;
     private final EquipmentService equipmentService;
     private final Grid<Hospital> hospitalGrid;
     private final MedicGrid medicGrid;
@@ -46,15 +48,15 @@ public class PersonalView extends VerticalLayout {
 
     public PersonalView(
             @NotNull final AuthenticationService authenticationService,
-            @NotNull final MedicPersonalService medicPersonalService,
-            @NotNull final EngineerPersonalService engineerPersonalService,
+            @NotNull final MedicService medicService,
+            @NotNull final EngineerService engineerService,
             @NotNull final HospitalService hospitalService,
             @NotNull final DepartmentService departmentService,
             @NotNull final EquipmentService equipmentService
     ) {
         this.authenticationService = Objects.requireNonNull(authenticationService);
-        this.medicPersonalService = Objects.requireNonNull(medicPersonalService);
-        this.engineerPersonalService = engineerPersonalService;
+        this.medicService = Objects.requireNonNull(medicService);
+        this.engineerService = engineerService;
         this.hospitalService = Objects.requireNonNull(hospitalService);
         this.departmentService = Objects.requireNonNull(departmentService);
         this.equipmentService = Objects.requireNonNull(equipmentService);
@@ -66,8 +68,8 @@ public class PersonalView extends VerticalLayout {
         this.equipmentGrid = new EquipmentGrid();
 
         this.hospitalGrid.setItems(hospitalService.getAll());
-        this.medicGrid.setItems(medicPersonalService.getAll());
-        this.engineerGrid.setItems(engineerPersonalService.getAll());
+        this.medicGrid.setItems(medicService.getAll());
+        this.engineerGrid.setItems(engineerService.getAll());
         this.departmentGrid.setItems(departmentService.getAll());
         this.equipmentGrid.setItems(equipmentService.getAll());
 
@@ -76,8 +78,6 @@ public class PersonalView extends VerticalLayout {
 
         hospitalGrid.addSelectionListener(this::hospitalSelect);
         departmentGrid.addSelectionListener(this::departmentSelect);
-
-        this.getElement().getStyle().set("background", "#28394e");
     }
 
     private void hospitalSelect(SelectionEvent<Grid<Hospital>, Hospital> gridHospitalSelectionEvent) {
@@ -152,36 +152,59 @@ public class PersonalView extends VerticalLayout {
     }
 
     private void handleCreateHospital(ClickEvent<Button> buttonClickEvent) {
-        HospitalDialog hospitalDialog = new HospitalDialog();
-        hospitalDialog.addListener(HospitalDialog.UpdateHospitalEvent.class, this::saveHospital);
-        hospitalDialog.open();
+        try {
+            HospitalDialog hospitalDialog = new HospitalDialog();
+            hospitalDialog.addListener(HospitalDialog.UpdateHospitalEvent.class, this::saveHospital);
+            hospitalDialog.open();
+        } catch (Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
+        }
     }
 
     private void handleCreateEngineer(ClickEvent<Button> buttonClickEvent) {
-        EngineerDialog engineerDialog = new EngineerDialog(engineerPersonalService,
-                hospitalService.getAll());
-        engineerDialog.addListener(EngineerDialog.UpdateEngineerPersonalEvent.class,
-                this::saveEngineer);
-        engineerDialog.open();
+        try {
+            EngineerDialog engineerDialog = new EngineerDialog(engineerService, hospitalService.getAll());
+            engineerDialog.addListener(EngineerDialog.UpdateEngineerPersonalEvent.class,
+                    this::saveEngineer);
+            engineerDialog.open();
+        } catch (Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
+        }
     }
 
     private void handleCreateDepartment(ClickEvent<Button> buttonClickEvent) {
-        DepartmentDialog departmentDialog = new DepartmentDialog(hospitalService.getAll());
-        departmentDialog.addListener(DepartmentDialog.UpdateDepartmentEvent.class, this::handleCreateDepartment);
-        departmentDialog.open();
+        try {
+            DepartmentDialog departmentDialog = new DepartmentDialog(hospitalService.getAll());
+            departmentDialog.addListener(DepartmentDialog.UpdateDepartmentEvent.class, this::handleCreateDepartment);
+            departmentDialog.open();
+        } catch (Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
+        }
     }
 
     private void handleCreateMedic(ClickEvent<Button> buttonClickEvent) {
-        MedicDialog medicDialog = new MedicDialog(medicPersonalService,
-                hospitalService.getAll());
-        medicDialog.addListener(MedicDialog.UpdateMedicPersonalEvent.class, this::saveMedic);
-        medicDialog.open();
+        try {
+            MedicDialog medicDialog = new MedicDialog(medicService, hospitalService.getAll(), departmentService);
+            medicDialog.addListener(MedicDialog.UpdateMedicPersonalEvent.class, this::saveMedic);
+            medicDialog.open();
+        } catch (Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
+        }
     }
 
     private void handleCreateEquipment(ClickEvent<Button> buttonClickEvent) {
-        EquipmentDialog equipmentDialog = new EquipmentDialog(hospitalService.getAll());
-        equipmentDialog.addListener(EquipmentDialog.UpdateEquipmentEvent.class, this::saveEquipment);
-        equipmentDialog.open();
+        try {
+            EquipmentDialog equipmentDialog = new EquipmentDialog(hospitalService.getAll(), departmentService);
+            equipmentDialog.addListener(EquipmentDialog.UpdateEquipmentEvent.class, this::saveEquipment);
+            equipmentDialog.open();
+        } catch (Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
+        }
     }
 
     private void saveHospital(HospitalDialog.UpdateHospitalEvent updateHospitalEvent) {
@@ -192,7 +215,8 @@ public class PersonalView extends VerticalLayout {
             Helper.showSuccessNotification(Translator.MSG_HOSPITAL_SUCCESS_SAVED);
             deselectAll();
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
         }
     }
 
@@ -204,20 +228,22 @@ public class PersonalView extends VerticalLayout {
             Helper.showSuccessNotification(Translator.MSG_DEPARTMENT_SUCCESS_SAVED);
             deselectAll();
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
         }
     }
 
     private void saveMedic(MedicDialog.UpdateMedicPersonalEvent updateMedicPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateMedicPersonalEvent.getMedicPersonalDTO());
-            medicPersonalService.save(updateMedicPersonalEvent.getMedicPersonalDTO());
-            Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
-            medicGrid.setItems(medicPersonalService.getAll());
+            medicService.save(updateMedicPersonalEvent.getMedicPersonalDTO());
+            Helper.showSuccessNotification(MSG_MEDIC_SUCCESS_SAVED);
+            medicGrid.setItems(medicService.getAll());
             medicGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
         }
     }
 
@@ -225,25 +251,27 @@ public class PersonalView extends VerticalLayout {
     private void saveEngineer(EngineerDialog.UpdateEngineerPersonalEvent updateEngineerPersonalEvent) {
         try {
             authenticationService.createTempUserDetails(updateEngineerPersonalEvent.getEngineerPersonalDTO());
-            engineerPersonalService.save(updateEngineerPersonalEvent.getEngineerPersonalDTO());
-            Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
-            engineerGrid.setItems(engineerPersonalService.getAll());
+            engineerService.save(updateEngineerPersonalEvent.getEngineerPersonalDTO());
+            Helper.showSuccessNotification(MSG_ENGINEER_SUCCESS_SAVED);
+            engineerGrid.setItems(engineerService.getAll());
             engineerGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
         }
     }
 
     private void saveEquipment(EquipmentDialog.UpdateEquipmentEvent updateEquipmentEvent) {
         try {
             equipmentService.save(updateEquipmentEvent.getEquipment());
-            Helper.showSuccessNotification(MSG_PERSON_SUCCESS_SAVED);
+            Helper.showSuccessNotification(MSG_EQUIPMENT_SUCCESS_SAVED);
             equipmentGrid.setItems(equipmentService.getAll());
             equipmentGrid.getListDataView().refreshAll();
             deselectAll();
         } catch (Exception e) {
-            Helper.showErrorNotification(String.format("жопа %s", e.getMessage()));
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка");
         }
     }
 

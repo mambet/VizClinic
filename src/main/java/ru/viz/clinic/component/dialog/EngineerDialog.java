@@ -8,7 +8,7 @@ import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.model.EngineerPersonalDTO;
 import ru.viz.clinic.data.repository.EngineerPersonalRepository;
-import ru.viz.clinic.service.EngineerPersonalService;
+import ru.viz.clinic.service.EngineerService;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -17,11 +17,11 @@ public class EngineerDialog extends PersonalDialog<EngineerPersonalDTO, Engineer
     Select<Hospital> hospitalSelect = new Select<>();
 
     public EngineerDialog(
-            @NotNull final EngineerPersonalService engineerPersonalService,
+            @NotNull final EngineerService engineerService,
             @NotNull final Collection<Hospital> hospitals,
             @NotNull final EngineerPersonalDTO engineerPersonalDTO
     ) {
-        super(engineerPersonalDTO, engineerPersonalService);
+        super(engineerPersonalDTO, engineerService);
 
         hospitalSelect.setItems(hospitals);
         hospitalSelect.setItemLabelGenerator(Hospital::getName);
@@ -34,10 +34,10 @@ public class EngineerDialog extends PersonalDialog<EngineerPersonalDTO, Engineer
     }
 
     public EngineerDialog(
-            @NotNull final EngineerPersonalService engineerPersonalService,
+            @NotNull final EngineerService engineerService,
             @NotNull final Collection<Hospital> hospitals
     ) {
-        this(engineerPersonalService, hospitals, EngineerPersonalDTO.builder().build());
+        this(engineerService, hospitals, EngineerPersonalDTO.builder().build());
     }
 
     @Override

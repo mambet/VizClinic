@@ -1,21 +1,21 @@
 package ru.viz.clinic.component.dialog;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.log4j.Log4j2;
 import ru.viz.clinic.data.entity.Order;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static ru.viz.clinic.help.Translator.*;
 
-@Log4j2
-public class RecordCreateLeaveDialog extends RecordDialog {
-    public RecordCreateLeaveDialog(
+public class CommentRecordDialog extends RecordDialog {
+    public CommentRecordDialog(
             @NotNull final Order order,
             @NotNull final BiConsumer<Order, String> leaveOrder
 
     ) {
-        super(DLH_LEAVE_ORDER, BTN_LEAVE_ORDER);
-        addConfirmListener(confirmEvent -> leaveOrder.accept(order, commentTextArea.getValue()));
+        super(DLH_COMMENT, BTN_CREATE_COMMENT);
+        addConfirmListener(confirmEvent -> leaveOrder.accept(Objects.requireNonNull(order),
+                commentTextArea.getValue()));
     }
 }

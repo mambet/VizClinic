@@ -8,5 +8,5 @@ import java.util.List;
 @Repository
 public interface MedicPersonalRepository extends CommonRepository<Medic> {
     @Override
-    List<Medic> findByUsername(String username);
+    Medic findByUsername(String username);
 }

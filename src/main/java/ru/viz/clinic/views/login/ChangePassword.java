@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.component.dialog.PassChangeLayout;
 import ru.viz.clinic.data.Role;
 import ru.viz.clinic.help.Helper;
@@ -25,12 +26,13 @@ import java.util.Objects;
 @Route(value = "RegisterTemp")
 @RolesAllowed("TEMP")
 public class ChangePassword extends HorizontalLayout {
-    private final AuthenticationService authenticationService;
+    private final PersonalService personalService;
 
     public ChangePassword(
-            @NotNull final AuthenticationService authenticationService
+            @NotNull final PersonalService personalService
     ) {
-        this.authenticationService = Objects.requireNonNull(authenticationService);
+
+        this.personalService = Objects.requireNonNull(personalService);
         final PassChangeLayout passChangeLayout = new PassChangeLayout(this::attemptToRegister);
         this.add(passChangeLayout);
         this.setHeightFull();
@@ -38,23 +40,14 @@ public class ChangePassword extends HorizontalLayout {
         this.setAlignSelf(Alignment.CENTER, passChangeLayout);
     }
 
-    private void attemptToRegister(@NotNull final PassChangeLayout.PassDTO passDTO) {
-        Objects.requireNonNull(passDTO);
-        try {
-            authenticationService.updatePassAndRole(passDTO.getOldPass(), passDTO.getNewPass());
-            authenticationService.getLoggedUserRole().ifPresent(role ->
-            {
-                if (role.equals(Role.ENGINEER)) {
-                    this.getUI().ifPresent(ui -> ui.navigate(EngineerOrderView.class));
-                }
-                if (role.equals(Role.MEDIC)) {
-                    this.getUI().ifPresent(ui -> ui.navigate(MedicOrderView.class));
-                }
-
-                //TODO create empty error view and navigate to it
-            });
-        } catch (Exception e) {
-            Helper.showErrorNotification(String.format("Ну удалось %s", e.getMessage()));
-        }
+    private void attemptToRegister(PassChangeLayout.PassDTO passDTO) {
+        personalService.updatePassAndRole(passDTO).ifPresent(role -> {
+            if (role == Role.ENGINEER) {
+                this.getUI().ifPresent(ui -> ui.navigate(EngineerOrderView.class));
+            }
+            if (role == Role.MEDIC) {
+                this.getUI().ifPresent(ui -> ui.navigate(MedicOrderView.class));
+            }
+        });
     }
 }

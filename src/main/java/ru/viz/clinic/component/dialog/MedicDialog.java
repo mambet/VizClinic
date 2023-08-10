@@ -10,7 +10,8 @@ import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Medic;
 import ru.viz.clinic.data.model.MedicPersonalDTO;
 import ru.viz.clinic.data.repository.MedicPersonalRepository;
-import ru.viz.clinic.service.MedicPersonalService;
+import ru.viz.clinic.service.DepartmentService;
+import ru.viz.clinic.service.MedicService;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -18,14 +19,17 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Translator.LBL_DEPARTMENT_NAME;
 
 public class MedicDialog extends PersonalDialog<MedicPersonalDTO, Medic, MedicPersonalRepository> {
+    private final DepartmentService departmentService;
     Select<Department> departmentSelect = new Select<>();
 
     public MedicDialog(
-            @NotNull final MedicPersonalService medicPersonalService,
+            @NotNull final MedicService medicService,
             @NotNull final Collection<Hospital> hospitals,
-            @NotNull final MedicPersonalDTO medicPersonalDTO
+            @NotNull final MedicPersonalDTO medicPersonalDTO,
+            @NotNull final DepartmentService departmentService
     ) {
-        super(medicPersonalDTO, medicPersonalService);
+        super(medicPersonalDTO, medicService);
+        this.departmentService = Objects.requireNonNull(departmentService);
 
         Select<Hospital> hospitalSelect = new Select<>();
 
@@ -44,15 +48,19 @@ public class MedicDialog extends PersonalDialog<MedicPersonalDTO, Medic, MedicPe
     }
 
     public MedicDialog(
-            @NotNull final MedicPersonalService medicPersonalService,
-            @NotNull final Collection<Hospital> hospitals
+            @NotNull final MedicService medicService,
+            @NotNull final Collection<Hospital> hospitals,
+            @NotNull final DepartmentService departmentService
     ) {
-        this(medicPersonalService, hospitals, MedicPersonalDTO.builder().build());
+        this(medicService, hospitals, MedicPersonalDTO.builder().build(),
+                Objects.requireNonNull(departmentService));
     }
 
     private void hospitalSelectListener(AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {
-        departmentSelect.setItems(selectHospitalComponentValueChangeEvent.getValue().getDepartments());
+        final Long hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
+        departmentSelect.setItems(departmentService.getByHospital(hospitalId));
     }
+
     @Override
     protected void handleConfirm() {
         fireEvent(new UpdateMedicPersonalEvent(this, Objects.requireNonNull(item)));

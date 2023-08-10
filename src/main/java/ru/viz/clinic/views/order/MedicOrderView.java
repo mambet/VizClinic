@@ -7,25 +7,16 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
-import ru.viz.clinic.component.TopicBox;
 import ru.viz.clinic.component.dialog.OrderDialog;
 import ru.viz.clinic.component.grid.MedicOrderGrid;
-import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.data.EventType;
-import ru.viz.clinic.help.Helper;
-import ru.viz.clinic.help.Translator;
-import ru.viz.clinic.security.AuthenticationService;
-import ru.viz.clinic.service.OrderService;
-import ru.viz.clinic.service.PersonalService;
-import ru.viz.clinic.service.RecordService;
+import ru.viz.clinic.service.*;
 import ru.viz.clinic.views.MainLayout;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static ru.viz.clinic.help.Translator.*;
 
@@ -34,25 +25,32 @@ import static ru.viz.clinic.help.Translator.*;
 @RolesAllowed("MEDIC")
 @Log4j2
 public class MedicOrderView extends OrderView<MedicOrderGrid> {
-    private final Medic medic;
+    private Medic medic;
+    private final EngineerService engineerService;
 
     public MedicOrderView(
             @NotNull final OrderService orderService,
             @NotNull final RecordService recordService,
-            @NotNull final PersonalService personalService,
-            @NotNull final AuthenticationService authenticationService
+            @NotNull final MedicService medicService,
+            @NotNull final EngineerService engineerService
 
     ) {
         super(Objects.requireNonNull(orderService),
-                Objects.requireNonNull(recordService),
-                Objects.requireNonNull(personalService),
-                Objects.requireNonNull(authenticationService));
+                Objects.requireNonNull(recordService));
 
-        this.medic = Objects.requireNonNull(getMedic());
+        this.engineerService = Objects.requireNonNull(engineerService);
+
+        Objects.requireNonNull(medicService).getLoggedMedic().ifPresent(medic -> {
+            this.medic = Objects.requireNonNull(medic);
+            createGrid();
+        });
+    }
+
+    private void createGrid() {
         this.orderGrid = new MedicOrderGrid(Objects.requireNonNull(recordService));
-        this.orderGrid.setItems(orderService.getByDepartment(medic.getDepartment().getId()));
+        this.orderGrid.setItems(orderService.getByDepartment(this.medic.getDepartment().getId()));
         this.orderGrid.addListener(MedicOrderGrid.CloseEvent.class, this::handleCloseEvent);
-        this.orderGrid.addListener(MedicOrderGrid.EditEvent.class, this::handleEditEvent);
+        this.orderGrid.addListener(MedicOrderGrid.UpdateEvent.class, this::handleUpdateEvent);
         this.add(createOrderButton(), orderGrid);
     }
 
@@ -67,7 +65,7 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
     private void handleCreateOrderClick(ClickEvent<Button> buttonClickEvent) {
         log.info("create order");
 
-        Collection<Engineer> engineers = medic.getDepartment().getHospital().getEngineers();
+        Collection<Engineer> engineers = engineerService.getByHospitalId(medic.getDepartment().getHospital().getId());
         Collection<Equipment> equipment = medic.getDepartment().getEquipment();
         // TODO not empty           equipment
         // TODO not empty           engineers
@@ -77,17 +75,18 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
                         .department(Objects.requireNonNull(medic.getDepartment()))
                         .records(new ArrayList<>())
                         .build());
-        orderDialog.addListener(OrderDialog.UpdateOrder.class, order -> createOrder(order.getOrder()));
+        orderDialog.addListener(OrderDialog.UpdateOrder.class, order -> createOrder(
+                Objects.requireNonNull(order.getOrder())));
         orderDialog.open();
     }
 
     //event from Grid
     //open Dialog
-    private void handleEditEvent(MedicOrderGrid.EditEvent event) {
+    private void handleUpdateEvent(MedicOrderGrid.UpdateEvent event) {
         log.info("edit order id {}", event.getOrder().getId());
         Objects.requireNonNull(event.getOrder());
         //TODO orElse
-        Collection<Engineer> engineers = medic.getDepartment().getHospital().getEngineers(); //reqnon null
+        Collection<Engineer> engineers = engineerService.getByHospitalId(medic.getDepartment().getHospital().getId());
         Collection<Equipment> equipment = medic.getDepartment().getEquipment(); //reqnonnull
 
         OrderDialog orderDialog = new OrderDialog(engineers, equipment, event.getOrder());
@@ -95,62 +94,38 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
         orderDialog.open();
     }
 
-    private void handleCloseEvent(MedicOrderGrid.CloseEvent event) {
-        Order order = Objects.requireNonNull(event.getOrder()); //TODO event reqnotnull
-        log.info("close order id {}", order.getId());
+    private void handleCloseEvent(@NotNull final MedicOrderGrid.CloseEvent event) {
+        Objects.requireNonNull(event);
+        Order order = Objects.requireNonNull(event.getOrder());
+        log.info("close order with id {}", order.getId());
         closeOrder(order);
     }
 
     private void createOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        order.setOrderState(OrderState.READY);
-        saveOrder(order).ifPresent(savedOrder -> {
-            recordService.createRecord(EventType.START_ORDER, medic, savedOrder);
+        orderService.createOrder(order).ifPresent(savedOrder -> {
+            recordService.addRecord(EventType.START_ORDER, medic, savedOrder);
             updateGrid();
-            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_SAVED);
         });
     }
 
-    private void updateOrder(
-            @NotNull final Order order
-    ) {
+    private void updateOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        saveOrder(order).ifPresent(savedOrder -> {
-            recordService.createRecord(EventType.UPDATE_ORDER, medic, savedOrder);
+        orderService.updateOrder(order).ifPresent(savedOrder -> {
+            recordService.addRecord(EventType.UPDATE_ORDER, medic, savedOrder);
             updateGrid();
-            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_MODIFIED);
         });
     }
 
-    private void closeOrder(
-            @NotNull final Order order
-    ) {
-        order.setOrderState(OrderState.DONE);
-        order.setFinishEngineer(order.getOwnerEngineer());
-        order.setOwnerEngineer(null);
-        order.setEndTime(LocalDateTime.now());
-
-        saveOrder(order).ifPresent(savedOrder -> {
-            recordService.createRecord(EventType.FINISH_ORDER, medic, savedOrder);
+    private void closeOrder(@NotNull final Order order) {
+        orderService.closeOrder(order).ifPresent(savedOrder -> {
+            recordService.addRecord(EventType.FINISH_ORDER, medic, savedOrder);
             updateGrid();
-            Helper.showSuccessNotification(MSG_ORDER_SUCCESS_CLOSED);
         });
-        updateGrid();
     }
 
     private void updateGrid() {
         orderGrid.setItems(orderService.getByDepartment(medic.getDepartment().getId()));
         orderGrid.getListDataView().refreshAll();
-    }
-
-    protected Medic getMedic() {
-        AtomicReference<Medic> atomicReference = new AtomicReference<>();
-        authenticationService.getUserDetails().flatMap(personalService::getLoggedPersonal)
-                .ifPresent(personal -> {
-                    if (personal instanceof Medic e) {
-                        atomicReference.set(e);
-                    }
-                });
-        return atomicReference.get();
     }
 }

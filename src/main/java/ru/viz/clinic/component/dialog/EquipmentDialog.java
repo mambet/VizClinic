@@ -5,20 +5,15 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Equipment;
 import ru.viz.clinic.data.entity.Hospital;
-import ru.viz.clinic.help.Helper;
+import ru.viz.clinic.service.DepartmentService;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -27,13 +22,16 @@ import static ru.viz.clinic.help.Translator.*;
 
 public class EquipmentDialog extends VizConfirmDialog<Equipment> {
     final Select<Department> departmentSelect = new Select<>();
+    private final DepartmentService departmentService;
 
     public EquipmentDialog(
             @NotNull final Equipment equipment,
-            @NotNull final Collection<Hospital> hospitals
+            @NotNull final Collection<Hospital> hospitals,
+            @NotNull final DepartmentService departmentService
     ) {
-        super(DLH_CREATE_DEPARTMENT, equipment);
+        super(DLH_CREATE_DEPARTMENT, Objects.requireNonNull(equipment));
 
+        this.departmentService = Objects.requireNonNull(departmentService);
         Objects.requireNonNull(hospitals);
 
         final Select<Hospital> hospitalSelect = new Select<>();
@@ -64,11 +62,15 @@ public class EquipmentDialog extends VizConfirmDialog<Equipment> {
     }
 
     private void hospitalSelectListener(AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {
-        departmentSelect.setItems(selectHospitalComponentValueChangeEvent.getValue().getDepartments());
+        final Long hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
+        departmentSelect.setItems(departmentService.getByHospital(hospitalId));
     }
 
-    public EquipmentDialog(@NotNull final List<Hospital> hospitals) {
-        this(new Equipment(), hospitals);
+    public EquipmentDialog(
+            @NotNull final List<Hospital> hospitals,
+            @NotNull final DepartmentService departmentService
+    ) {
+        this(new Equipment(), Objects.requireNonNull(hospitals), Objects.requireNonNull(departmentService));
     }
 
     @Override
