@@ -72,7 +72,6 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
         OrderDialog orderDialog = new OrderDialog(engineers, equipment,
                 Order.builder()
                         .medic(Objects.requireNonNull(medic))
-                        .department(Objects.requireNonNull(medic.getDepartment()))
                         .records(new ArrayList<>())
                         .build());
         orderDialog.addListener(OrderDialog.UpdateOrder.class, order -> createOrder(

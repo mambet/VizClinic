@@ -38,23 +38,23 @@ public class VaadinServiceInitListenerImpl implements VaadinServiceInitListener 
         authenticationService.getUserDetails()
                 .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
                                 StringUtils.equals(grantedAuthority.getAuthority(), Role.TEMP.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.rerouteTo(ChangePassword.class));
+                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(ChangePassword.class));
 
         //if user has role ENGINEER reroute to ChangePassword
         authenticationService.getUserDetails()
                 .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
                                 StringUtils.equals(grantedAuthority.getAuthority(), Role.ENGINEER.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.rerouteTo(EngineerOrderView.class));
+                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(EngineerOrderView.class));
 
         //if user has role MEDIC reroute to ChangePassword
         authenticationService.getUserDetails()
                 .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
                                 StringUtils.equals(grantedAuthority.getAuthority(), Role.MEDIC.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.rerouteTo(MedicOrderView.class));
+                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(MedicOrderView.class));
 
         //if user not login in, reroute to LoginView
         if (!LoginView.class.equals(event.getNavigationTarget()) && !authenticationService.isUserLoggedIn()) {
-            event.rerouteTo(LoginView.class);
+            event.forwardTo(LoginView.class);
         }
 
     }

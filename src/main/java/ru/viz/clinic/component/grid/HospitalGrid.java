@@ -6,8 +6,9 @@ import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Hospital;
 
 import java.util.Collection;
+import java.util.Objects;
 
-import static ru.viz.clinic.help.Translator.HDR_DEPARTMENT;
+import static ru.viz.clinic.help.Translator.*;
 
 public class HospitalGrid extends Grid<Hospital> {
     public HospitalGrid() {
@@ -16,18 +17,19 @@ public class HospitalGrid extends Grid<Hospital> {
 
     @Override
     public GridListDataView<Hospital> setItems(Collection<Hospital> items) {
+        Objects.requireNonNull(items);
         return super.setItems(items);
     }
 
     private void createTable() {
         this.setSelectionMode(SelectionMode.SINGLE);
-        this.addColumn(Hospital::getId);
-        this.addColumn(Hospital::getName);
-        this.addColumn(
-                        hospital -> hospital.getAddress() != null ? hospital.getAddress().toString() : Strings.EMPTY)
-                .setHeader(HDR_DEPARTMENT);
+        this.addColumn(Hospital::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);;
+        this.addColumn(Hospital::getName).setHeader(HDR_HOSPITAL);
+        this.addColumn(hospital -> hospital.getAddress() != null
+                        ? hospital.getAddress().toString() : Strings.EMPTY)
+                .setHeader(HDR_ADDRESS);
+
         this.setAllRowsVisible(true);
-               this.addClassName("select");
-        this.addClassName("primary");
+        this.addClassNames("select", "primary");
     }
 }

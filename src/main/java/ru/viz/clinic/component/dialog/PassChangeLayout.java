@@ -9,7 +9,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static ru.viz.clinic.help.Translator.ERR_MSG_PASS_NAME_IS_SHORT;
+import static ru.viz.clinic.help.Translator.*;
 
 public class PassChangeLayout extends VerticalLayout {
     public static final int WORD_LENGTH = 4;
@@ -63,7 +62,7 @@ public class PassChangeLayout extends VerticalLayout {
         formLayout.add(oldPasswordField, newPasswordField, newPasswordFieldRepeat);
 
         this.setWidth(300, Unit.PIXELS);
-        H3 label = new H3("Смена пароля");
+        H3 label = new H3(DLH_CHANGE_PASS);
         this.setHorizontalComponentAlignment(Alignment.END, confirm);
         this.setHorizontalComponentAlignment(Alignment.CENTER, label);
 
@@ -82,31 +81,31 @@ public class PassChangeLayout extends VerticalLayout {
     }
 
     private ValidationResult validateNewPassEquals(
-            String s,
-            ValueContext valueContext
+            @NotNull final String newPass,
+            @NotNull final ValueContext valueContext
     ) {
 
-        if (s.length() < WORD_LENGTH) {
+        if (newPass.length() < WORD_LENGTH) {
             return ValidationResult.error(ERR_MSG_PASS_NAME_IS_SHORT);
         }
-        if (StringUtils.equals(newPasswordFieldRepeat.getValue(), s)) {
+        if (StringUtils.equals(newPasswordFieldRepeat.getValue(), newPass)) {
             return ValidationResult.ok();
         } else {
-            return ValidationResult.error("Жопа");
+            return ValidationResult.error(ERR_PASSWORDS_NOT_EQUALS_ERROR);
         }
     }
 
     private ValidationResult validateNewRepeatPassEquals(
-            String s,
-            ValueContext valueContext
+            @NotNull final String repeatPass,
+            @NotNull final ValueContext valueContext
     ) {
-        if (s.length() < WORD_LENGTH) {
+        if (repeatPass.length() < WORD_LENGTH) {
             return ValidationResult.error(ERR_MSG_PASS_NAME_IS_SHORT);
         }
-        if (StringUtils.equals(newPasswordField.getValue(), s)) {
+        if (StringUtils.equals(newPasswordField.getValue(), repeatPass)) {
             return ValidationResult.ok();
         } else {
-            return ValidationResult.error("Жопа");
+            return ValidationResult.error(ERR_PASSWORDS_NOT_EQUALS_ERROR);
         }
     }
 

@@ -6,12 +6,10 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.viz.clinic.converter.PersonalToStringConverter;
 import ru.viz.clinic.data.EventType;
-import ru.viz.clinic.data.entity.Order;
-import ru.viz.clinic.data.entity.Personal;
-import ru.viz.clinic.data.repository.RecordRepository;
+import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.data.entity.Record;
+import ru.viz.clinic.data.repository.RecordRepository;
 import ru.viz.clinic.help.Helper;
 
 import java.util.List;
@@ -32,16 +30,14 @@ public class RecordService {
     }
 
     @Transactional
-    public Optional<Record> save(Record record) {
+    public void save(Record record) {
         try {
-            Optional<Record> optionalRecord = Optional.of(recordRepository.save(record));
+            recordRepository.save(record);
             Helper.showSuccessNotification(MSG_RECORD_UPDATED);
-            return optionalRecord;
         } catch (Exception e) {
             Helper.showErrorNotification(ERR_RECORD_SAVED_FAILED);
             log.error("saving record failed, with error", e);
         }
-        return Optional.empty();
     }
 
     public List<Record> getAll() {
@@ -56,7 +52,7 @@ public class RecordService {
         recordRepository.deleteById(id);
     }
 
-    public Optional<Record> addRecord(
+    public void addRecord(
             @NotNull final EventType eventType,
             @NotNull final Personal personal,
             @NotNull final Order order,
@@ -64,18 +60,23 @@ public class RecordService {
     ) {
         Record record = new Record();
         record.setEventType(Objects.requireNonNull(eventType));
-        record.setPerson(PersonalToStringConverter.convertToPresentation(Objects.requireNonNull(personal)));
         record.setComment(Objects.requireNonNull(comment));
         record.setOrder(Objects.requireNonNull(order));
-        return save(record);
+        if (personal instanceof final Engineer engineer) {
+            record.setEngineer(engineer);
+        }
+        if (personal instanceof final Medic medic) {
+            record.setMedic(medic);
+        }
+        save(record);
     }
 
-    public Optional<Record> addRecord(
+    public void addRecord(
             @NotNull final EventType eventType,
             @NotNull final Personal personal,
             @NotNull final Order order
     ) {
-        return addRecord(Objects.requireNonNull(eventType),
+        addRecord(Objects.requireNonNull(eventType),
                 Objects.requireNonNull(personal),
                 Objects.requireNonNull(order),
                 Strings.EMPTY);

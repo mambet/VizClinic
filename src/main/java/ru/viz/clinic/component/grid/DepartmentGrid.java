@@ -10,8 +10,7 @@ import ru.viz.clinic.data.model.HospitalGridFilterUpdater;
 import java.util.Collection;
 import java.util.Objects;
 
-import static ru.viz.clinic.help.Translator.HDR_DEPARTMENT;
-import static ru.viz.clinic.help.Translator.HDR_HOSPITAL;
+import static ru.viz.clinic.help.Translator.*;
 
 public class DepartmentGrid extends Grid<Department> implements HospitalGridFilterUpdater {
     private DepartmentFilter departmentFilter;
@@ -28,13 +27,12 @@ public class DepartmentGrid extends Grid<Department> implements HospitalGridFilt
 
     private void createTable() {
         this.setSelectionMode(Grid.SelectionMode.SINGLE);
-        this.addColumn(Department::getId).setHeader(HDR_DEPARTMENT);
-        this.addColumn(Department::getName).setHeader(HDR_DEPARTMENT);
-        this.addColumn(department -> department.getHospital() != null ? department.getHospital().getName() :
-                Strings.EMPTY).setHeader(HDR_HOSPITAL);
+        this.addColumn(Department::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
+        this.addColumn(department -> department.getHospital() != null
+                ? department.getHospital().getName() : Strings.EMPTY).setHeader(HDR_HOSPITAL).setAutoWidth(true);
+        this.addColumn(Department::getName).setHeader(HDR_DEPARTMENT).setAutoWidth(true);
         this.setAllRowsVisible(true);
-        this.addClassName("select");
-        this.addClassName("primary");
+        this.addClassNames("select", "primary");
     }
 
     @Override

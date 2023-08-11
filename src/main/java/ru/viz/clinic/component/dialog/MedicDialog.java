@@ -5,6 +5,8 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.select.Select;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import ru.viz.clinic.component.components.DepartmentSelect;
+import ru.viz.clinic.component.components.HospitalSelect;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Medic;
@@ -16,11 +18,11 @@ import ru.viz.clinic.service.MedicService;
 import java.util.Collection;
 import java.util.Objects;
 
-import static ru.viz.clinic.help.Translator.LBL_DEPARTMENT_NAME;
+import static ru.viz.clinic.help.Translator.*;
 
 public class MedicDialog extends PersonalDialog<MedicPersonalDTO, Medic, MedicPersonalRepository> {
     private final DepartmentService departmentService;
-    Select<Department> departmentSelect = new Select<>();
+    private final DepartmentSelect departmentSelect = new DepartmentSelect();
 
     public MedicDialog(
             @NotNull final MedicService medicService,
@@ -28,23 +30,17 @@ public class MedicDialog extends PersonalDialog<MedicPersonalDTO, Medic, MedicPe
             @NotNull final MedicPersonalDTO medicPersonalDTO,
             @NotNull final DepartmentService departmentService
     ) {
-        super(medicPersonalDTO, medicService);
+        super(Objects.requireNonNull(medicPersonalDTO), medicService, DLH_CREATE_MEDIC);
         this.departmentService = Objects.requireNonNull(departmentService);
 
-        Select<Hospital> hospitalSelect = new Select<>();
-
+        final HospitalSelect hospitalSelect = new HospitalSelect(hospitals);
         hospitalSelect.addValueChangeListener(this::hospitalSelectListener);
-        hospitalSelect.setItems(hospitals);
-        hospitalSelect.setItemLabelGenerator(Hospital::getName);
-
-        departmentSelect.setLabel(LBL_DEPARTMENT_NAME);
-        departmentSelect.setItemLabelGenerator(Department::getName);
 
         binder.forField(departmentSelect)
                 .asRequired()
                 .bind(MedicPersonalDTO::getDepartment, MedicPersonalDTO::setDepartment);
 
-        addToFormLayout(hospitalSelect, departmentSelect);
+        addComponents(hospitalSelect, departmentSelect);
     }
 
     public MedicDialog(

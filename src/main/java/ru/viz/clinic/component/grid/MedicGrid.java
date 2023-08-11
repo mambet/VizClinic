@@ -2,6 +2,7 @@ package ru.viz.clinic.component.grid;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Medic;
@@ -38,16 +39,29 @@ public class MedicGrid extends PersonGrid<Medic> implements DepartmentGridFilter
 
     private void createTable() {
         List<Column<Medic>> columns = new ArrayList<>(this.getColumns());
-        Grid.Column<Medic> departmentColumn = this.addColumn(
-                        medicPersonal1 -> medicPersonal1.getDepartment().getName())
-                .setHeader(HDR_DEPARTMENT);
+        Grid.Column<Medic> departmentColumn = this.addColumn(medic -> {
+                    if (medic.getDepartment() != null) {
+                        return medic.getDepartment().getName();
+                    } else {
+                        return Strings.EMPTY;
+                    }
+                }).setHeader(HDR_DEPARTMENT)
+                .setResizable(true);
 
-        Grid.Column<Medic> hospitalColumn = this.addColumn(
-                        medicPersonal -> medicPersonal.getDepartment().getHospital().getName())
-                .setHeader(HDR_HOSPITAL);
+        Grid.Column<Medic> hospitalColumn =
+                this.addColumn(medic -> {
+                            if (medic.getDepartment() != null && medic.getDepartment().getHospital() != null) {
+                                return medic.getDepartment().getHospital().getName();
+                            } else {
+                                return Strings.EMPTY;
+                            }
+                        })
+                        .setHeader(HDR_HOSPITAL)
+                        .setResizable(true);
 
-        columns.add(0, hospitalColumn);
-        columns.add(1, departmentColumn);
+        columns.add(1, hospitalColumn);
+        columns.add(2, departmentColumn);
+
         this.setColumnOrder(columns);
     }
 

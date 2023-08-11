@@ -1,9 +1,9 @@
 package ru.viz.clinic.component.dialog;
 
 import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.select.Select;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import ru.viz.clinic.component.components.HospitalSelect;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.model.EngineerPersonalDTO;
@@ -13,24 +13,23 @@ import ru.viz.clinic.service.EngineerService;
 import java.util.Collection;
 import java.util.Objects;
 
-public class EngineerDialog extends PersonalDialog<EngineerPersonalDTO, Engineer, EngineerPersonalRepository> {
-    Select<Hospital> hospitalSelect = new Select<>();
+import static ru.viz.clinic.help.Translator.DLH_CREATE_ENGINEER;
 
+public class EngineerDialog extends PersonalDialog<EngineerPersonalDTO, Engineer, EngineerPersonalRepository> {
     public EngineerDialog(
             @NotNull final EngineerService engineerService,
             @NotNull final Collection<Hospital> hospitals,
             @NotNull final EngineerPersonalDTO engineerPersonalDTO
     ) {
-        super(engineerPersonalDTO, engineerService);
+        super(engineerPersonalDTO, engineerService, DLH_CREATE_ENGINEER);
 
-        hospitalSelect.setItems(hospitals);
-        hospitalSelect.setItemLabelGenerator(Hospital::getName);
+        final HospitalSelect hospitalSelect = new HospitalSelect(hospitals);
 
         binder.forField(hospitalSelect)
                 .asRequired()
                 .bind(EngineerPersonalDTO::getHospital, EngineerPersonalDTO::setHospital);
 
-        addToFormLayout(hospitalSelect);
+        addComponents(hospitalSelect);
     }
 
     public EngineerDialog(

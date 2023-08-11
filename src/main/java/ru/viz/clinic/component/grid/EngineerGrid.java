@@ -31,10 +31,11 @@ public class EngineerGrid extends PersonGrid<Engineer> implements HospitalGridFi
     private void createTable() {
         List<Column<Engineer>> columns = new ArrayList<>(this.getColumns());
         Column<Engineer> hospitalColumn = this.addColumn(
-                        engineerPersonal -> engineerPersonal.getHospital().getName())
+                        engineerPersonal -> engineerPersonal.getHospital().getName()).setResizable(true)
                 .setHeader(HDR_HOSPITAL);
-        columns.add(0, hospitalColumn);
+        columns.add(1, hospitalColumn);
         this.setColumnOrder(columns);
+        this.addClassName("select");
     }
 
     public static class EngineerPersonFilter extends PersonFilter<Engineer> {

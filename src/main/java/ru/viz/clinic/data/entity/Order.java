@@ -25,9 +25,6 @@ public class Order extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
-    @ManyToOne
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
     @Column(name = "description", length = 1000)
     private String description;
     @ManyToOne

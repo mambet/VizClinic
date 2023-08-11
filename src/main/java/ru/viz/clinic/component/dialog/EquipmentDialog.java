@@ -7,13 +7,16 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.ErrorLevel;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import ru.viz.clinic.data.entity.Department;
+import ru.viz.clinic.component.components.DepartmentSelect;
+import ru.viz.clinic.component.components.HospitalSelect;
 import ru.viz.clinic.data.entity.Equipment;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.service.DepartmentService;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +24,7 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Translator.*;
 
 public class EquipmentDialog extends VizConfirmDialog<Equipment> {
-    final Select<Department> departmentSelect = new Select<>();
+    private final DepartmentSelect departmentSelect = new DepartmentSelect();
     private final DepartmentService departmentService;
 
     public EquipmentDialog(
@@ -29,23 +32,17 @@ public class EquipmentDialog extends VizConfirmDialog<Equipment> {
             @NotNull final Collection<Hospital> hospitals,
             @NotNull final DepartmentService departmentService
     ) {
-        super(DLH_CREATE_DEPARTMENT, Objects.requireNonNull(equipment));
+        super(DLH_CREATE_EQUIPMENT, Objects.requireNonNull(equipment));
 
         this.departmentService = Objects.requireNonNull(departmentService);
         Objects.requireNonNull(hospitals);
 
-        final Select<Hospital> hospitalSelect = new Select<>();
-
-        hospitalSelect.setItems(hospitals);
+        final HospitalSelect hospitalSelect = new HospitalSelect(hospitals);
         hospitalSelect.addValueChangeListener(this::hospitalSelectListener);
-        hospitalSelect.setItemLabelGenerator(Hospital::getName);
-
-        departmentSelect.setLabel(LBL_EQUIPMENT_NAME);
-        departmentSelect.setItemLabelGenerator(Department::getName);
 
         final TextField name = new TextField(LBL_EQUIPMENT_NAME);
-        final TextField number = new TextField(LBL_EQUIPMENT_NUMBER);
-        final TextField numberNext = new TextField(LBL_EQUIPMENT_NUMBER_NEXT);
+        final TextField number = new TextField(LBL_EQUIPMENT_NUMBER_1);
+        final TextField numberNext = new TextField(LBL_EQUIPMENT_NUMBER_2);
         final DatePicker createDate = new DatePicker(LBL_EQUIPMENT_CREATE_DATE);
         final TextArea description = new TextArea(LBL_EQUIPMENT_DESCRIPTION);
 
@@ -53,12 +50,15 @@ public class EquipmentDialog extends VizConfirmDialog<Equipment> {
         binder.forField(name).asRequired().bind(Equipment::getName, Equipment::setName);
         binder.forField(number).asRequired().bind(Equipment::getNumber, Equipment::setNumber);
         binder.forField(numberNext).bind(Equipment::getNumberNext, Equipment::setNumberNext);
-        binder.forField(createDate).bind(Equipment::getCreateDate, Equipment::setCreateDate);
+        binder.forField(createDate).withValidator(localDate -> localDate == null || localDate.isBefore(LocalDate.now()),
+                        ERR_MSG_CREATION_DATE_IS_AFTER_NOW,
+                        ErrorLevel.ERROR)
+                .bind(Equipment::getCreateDate, Equipment::setCreateDate);
         binder.forField(description).bind(Equipment::getDescription, Equipment::setDescription);
 
         setBtnConfirmEnable(binder.isValid());
         binder.readBean(equipment);
-        this.add(new FormLayout(hospitalSelect, departmentSelect, name, number, numberNext, description));
+        this.add(new FormLayout(hospitalSelect, departmentSelect, name, number, numberNext, createDate, description));
     }
 
     private void hospitalSelectListener(AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {

@@ -2,13 +2,18 @@ package ru.viz.clinic.component.grid;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Equipment;
 import ru.viz.clinic.data.entity.Hospital;
+import ru.viz.clinic.data.entity.Medic;
 import ru.viz.clinic.data.model.DepartmentGridFilterUpdater;
+import ru.viz.clinic.help.Helper;
 
 import java.util.Collection;
 import java.util.Objects;
+
+import static ru.viz.clinic.help.Translator.*;
 
 public class EquipmentGrid extends Grid<Equipment> implements DepartmentGridFilterUpdater {
     EquipmentFilter equipmentFilter;
@@ -28,6 +33,7 @@ public class EquipmentGrid extends Grid<Equipment> implements DepartmentGridFilt
     public void setDepartmentFilterParameter(Department department) {
         equipmentFilter.setDepartment(department);
     }
+
     @Override
     public void setHospitalFilterParameter(Hospital hospital) {
         equipmentFilter.setHospital(hospital);
@@ -35,13 +41,31 @@ public class EquipmentGrid extends Grid<Equipment> implements DepartmentGridFilt
 
     private void createTable() {
         this.setSelectionMode(SelectionMode.NONE);
-        this.addColumn(Equipment::getId);
-        this.addColumn(Equipment::getNumber);
-        this.addColumn(Equipment::getNumberNext);
-        this.addColumn(Equipment::getCreateDate);
+
+        this.addColumn(Equipment::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);;
+        this.addColumn(equipment -> {
+                    if (equipment.getDepartment() != null && equipment.getDepartment().getHospital() != null) {
+                        return equipment.getDepartment().getHospital().getName();
+                    } else {
+                        return Strings.EMPTY;
+                    }
+                })
+                .setHeader(HDR_HOSPITAL);
+
+        this.addColumn(equipment -> {
+            if (equipment.getDepartment() != null) {
+                return equipment.getDepartment().getName();
+            } else {
+                return Strings.EMPTY;
+            }
+        }).setHeader(HDR_DEPARTMENT);
+
+        this.addColumn(Equipment::getNumber).setHeader(HDR_EQUIPMENT_NUMBER_1);
+        this.addColumn(Equipment::getNumberNext).setHeader(HDR_EQUIPMENT_NUMBER_2);
+        this.addColumn(Helper.getDateRenderer(Equipment::getCreateDate)).setHeader(HDR_EQUIPMENT_CREATION_TIME);
+        this.addColumn(Equipment::getDescription).setHeader(HDR_EQUIPMENT_DESCRIPTION);
         this.setAllRowsVisible(true);
-               this.addClassName("select");
-        this.addClassName("primary");
+        this.addClassNames("primary");
     }
 
     public static class EquipmentFilter {

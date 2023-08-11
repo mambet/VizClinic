@@ -6,18 +6,21 @@ import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Personal;
 import ru.viz.clinic.help.Translator;
 
+import static ru.viz.clinic.help.Translator.*;
+
 public class PersonGrid<T extends Personal> extends Grid<T> {
     public PersonGrid() {
-        this.addColumn(Personal::getUsername).setHeader(Translator.LBL_USER).setAutoWidth(true);
-        this.addColumn(Personal::getFirstName).setHeader(Translator.LBL_FIRST_NAME).setAutoWidth(true);
-        this.addColumn(Personal::getLastName).setHeader(Translator.LBL_LAST_NAME).setAutoWidth(true);
-        this.addColumn(Personal::getPhone).setHeader(Translator.LBL_PHONE).setAutoWidth(true);
-        this.addColumn(Personal::getBirthDate).setHeader(Translator.LBL_BIRTHDAY).setAutoWidth(true);
+        this.addColumn(Personal::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
+        this.addColumn(Personal::getUsername).setHeader(HDR_USER).setAutoWidth(true);
+        this.addColumn(Personal::getFirstName).setHeader(HDR_FIRST_NAME).setAutoWidth(true);
+        this.addColumn(Personal::getLastName).setHeader(HDR_LAST_NAME).setAutoWidth(true);
+        this.addColumn(Personal::getPhone).setHeader(HDR_PHONE).setAutoWidth(true);
+        this.addColumn(Personal::getEmail).setHeader(HDR_MAIL).setAutoWidth(true);
+        this.addColumn(Personal::getBirthDate).setHeader(HDR_BIRTHDAY).setAutoWidth(true);
         this.addColumn(person -> person.getGender() != null ? person.getGender().getGenderAsString() : Strings.EMPTY)
-                .setHeader(Translator.LBL_GENDER);
+                .setHeader(HDR_GENDER);
         this.setAllRowsVisible(true);
         this.setSelectionMode(Grid.SelectionMode.NONE);
-               this.addClassName("select");
         this.addClassName("primary");
     }
 

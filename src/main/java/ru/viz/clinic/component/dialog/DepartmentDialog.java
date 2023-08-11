@@ -6,6 +6,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import ru.viz.clinic.component.components.HospitalSelect;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.help.Helper;
@@ -24,14 +25,11 @@ public class DepartmentDialog extends VizConfirmDialog<Department> {
 
         Objects.requireNonNull(hospitals);
 
-        Select<Hospital> hospitalSelect = new Select<>();
-        hospitalSelect.setItems(hospitals);
-        hospitalSelect.setItemLabelGenerator(Hospital::getName);
-
+        final HospitalSelect hospitalSelect = new HospitalSelect(hospitals);
         final TextField departmentName = new TextField(LBL_DEPARTMENT_NAME);
 
-        binder.forField(departmentName).asRequired().bind(Department::getName, Department::setName);
         binder.forField(hospitalSelect).asRequired().bind(Department::getHospital, Department::setHospital);
+        binder.forField(departmentName).asRequired().bind(Department::getName, Department::setName);
         binder.readBean(department);
 
         this.add(new FormLayout(hospitalSelect, departmentName));

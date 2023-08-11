@@ -1,12 +1,15 @@
 package ru.viz.clinic.service;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.component.dialog.PassChangeLayout;
 import ru.viz.clinic.data.Role;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Medic;
+import ru.viz.clinic.help.Helper;
 import ru.viz.clinic.security.AuthenticationService;
 
 import java.util.Objects;
@@ -14,7 +17,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static ru.viz.clinic.help.Translator.ERR_AUTHENTICATION;
+import static ru.viz.clinic.help.Translator.ERR_BAD_CREDENTIALS;
+
 @Service
+@Slf4j
 public class PersonalService {
     private final MedicService medicService;
     private final EngineerService engineerService;
@@ -51,8 +58,16 @@ public class PersonalService {
             username = engineerOptional.get().getUsername();
         }
         if (role != null && username != null) {
-            authenticationService.updatePassAndRole(username, Set.of(role), currentPass, newPass);
-            return Optional.of(role);
+            try {
+                authenticationService.updatePassAndRole(username, Set.of(role), currentPass, newPass);
+                return Optional.of(role);
+            } catch (BadCredentialsException e) {
+                Helper.showErrorNotification(ERR_BAD_CREDENTIALS);
+                log.error("error at update pass and role", e);
+            } catch (Exception e) {
+                Helper.showErrorNotification(ERR_AUTHENTICATION);
+                log.error("error at update pass and role", e);
+            }
         }
         return Optional.empty();
     }

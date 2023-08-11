@@ -14,6 +14,8 @@ import ru.viz.clinic.security.AuthenticationService;
 
 import java.util.Objects;
 
+import static ru.viz.clinic.help.Translator.*;
+
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")
@@ -28,10 +30,17 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
         setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
         LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getErrorMessage().setTitle(ERR_MSG_LOGIN_TITLE);
+        i18n.getErrorMessage().setMessage(ERR_MSG_LOGIN_FAILED);
         i18n.setHeader(new LoginI18n.Header());
-        i18n.getHeader().setTitle("VizClinic");
-        i18n.getHeader().setDescription("Login using user/user or admin/admin");
+        i18n.getForm().setPassword(LBL_LOGIN_PASS);
+        i18n.getForm().setUsername(LBL_LOGIN_USERNAME);
+        i18n.getForm().setSubmit(BTN_LOGIN);
+        i18n.getForm().setTitle(LBL_LOGIN_TEXT);
+        i18n.getHeader().setTitle(DLH_LOGIN_TITLE);
+        i18n.getHeader().setDescription(MSG_LOGIN);
         i18n.setAdditionalInformation(null);
+
         setI18n(i18n);
 
         setForgotPasswordButtonVisible(false);
@@ -46,6 +55,10 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        //TODO
+        if (authenticationService.isUserLoggedIn()) {
+            setOpened(false);
+            beforeEnterEvent.forwardTo("");
+        }
+        setError(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
 }

@@ -15,8 +15,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import ru.viz.clinic.component.dialog.ShowRecordDialog;
 import ru.viz.clinic.data.entity.Order;
-import ru.viz.clinic.data.entity.Personal;
-import ru.viz.clinic.data.entity.Record;
 import ru.viz.clinic.help.Translator;
 import ru.viz.clinic.service.RecordService;
 
@@ -36,36 +34,46 @@ public abstract class OrderGrid extends Grid<Order> {
 
         this.addColumn(Order::getId)
                 .setAutoWidth(true)
-                .setHeader(Translator.HDR_ID);
+                .setHeader(Translator.HDR_ID)
+                .setWidth("7em").setFlexGrow(0);
         this.addColumn(order -> order.getEquipment().getName())
                 .setAutoWidth(true)
-                .setHeader(Translator.HDR_EQUIPMENT);
+                .setHeader(Translator.HDR_EQUIPMENT)
+                .setResizable(true);
         this.addColumn(Order::getDescription)
                 .setAutoWidth(true)
-                .setHeader(Translator.HDR_DESCRIPTION);
+                .setHeader(Translator.HDR_DESCRIPTION)
+                .setResizable(true);
         this.addColumn(order -> convertToPresentation(order.getMedic()))
                 .setAutoWidth(true)
-                .setHeader(Translator.HDR_MEDIC);
+                .setHeader(Translator.HDR_ORDER_GIVER)
+                .setResizable(true);
         this.addColumn(getDateTimeRenderer(Order::getCreateTime))
                 .setAutoWidth(true)
                 .setSortable(true)
                 .setComparator(Order::getCreateTime)
-                .setHeader(Translator.HDR_CREATE_ORDER);
+                .setHeader(Translator.HDR_CREATE_ORDER)
+                .setResizable(true);
         this.addColumn(order -> convertToPresentation(order.getDestinationEngineers()))
                 .setAutoWidth(true)
-                .setHeader(Translator.HDR_DESTINATION_ENGINEER);
+                .setHeader(Translator.HDR_DESTINATION_ENGINEER)
+                .setResizable(true);
         this.addColumn(order -> order.getOrderState().getValue())
                 .setSortable(true)
-                .setHeader(Translator.HDR_STATE_ORDER);
+                .setHeader(Translator.HDR_STATE_ORDER)
+                .setResizable(true);
         this.addColumn(order -> convertToPresentation(order.getOwnerEngineer()))
-                .setHeader(Translator.HDR_ORDER_TAKER);
+                .setHeader(Translator.HDR_ORDER_TAKER)
+                .setResizable(true);
         this.addColumn(order -> convertToPresentation(order.getFinishEngineer()))
-                .setHeader(Translator.HDR_ORDER_FINISHER);
+                .setHeader(Translator.HDR_ORDER_FINISHER)
+                .setResizable(true);
         this.addColumn(getDateTimeRenderer(Order::getEndTime))
                 .setAutoWidth(true)
                 .setSortable(true)
                 .setComparator(Order::getEndTime)
-                .setHeader(Translator.HDR_END_ORDER);
+                .setHeader(Translator.HDR_END_ORDER)
+                .setResizable(true);
         this.setPartNameGenerator(order -> {
             if (order.getOrderState() != null) {
                 switch (order.getOrderState()) {

@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "address")
 @Data
@@ -19,7 +21,4 @@ public class Address extends AbstractEntity{
     private String city;
     private Integer postalCode;
     private String region;
-    @OneToOne(mappedBy = "address")
-    @ToString.Exclude
-    private Hospital hospital;
 }
