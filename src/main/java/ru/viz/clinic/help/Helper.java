@@ -36,15 +36,15 @@ public class Helper {
     ) {
         Objects.requireNonNull(message);
         Objects.requireNonNull(lumoStyle);
-        Div text = new Div(new Text(message));
-        Notification notification = new Notification();
+        final Div text = new Div(new Text(message));
+        final Notification notification = new Notification();
         notification.addThemeVariants(lumoStyle);
-        Button closeButton = new Button(new Icon("lumo", "cross"));
+        final Button closeButton = new Button(new Icon("lumo", "cross"));
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         closeButton.getElement().setAttribute("aria-label", "Close");
         closeButton.addClickListener(event -> notification.close());
 
-        HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+        final HorizontalLayout layout = new HorizontalLayout(text, closeButton);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         notification.add(layout);
         notification.setDuration(4500);

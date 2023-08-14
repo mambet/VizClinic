@@ -1,16 +1,16 @@
 INSERT INTO users(enabled,username,password)
---password Jghq#sKX!yf4PC
-SELECT true,'sergej','$2a$10$YCmPqlLPpbiOo8A6shVOXubpzkLvE.DQxMr5/VX8uCxNImKnZ3eJ.'
+--password 0
+SELECT true,'s','$2a$10$xTmC5gnvno9acbNKJA8KpuznqtAWne4bTd6mRqcoE4qMv/aiSf98u'
 WHERE NOT EXISTS (
     SELECT 1 FROM users
-    WHERE username = 'sergej'
+    WHERE username = 's'
 );
 
 INSERT INTO authorities(authority, username)
-SELECT 'ROLE_ADMIN', 'sergej'
+SELECT 'ROLE_ADMIN', 's'
 WHERE NOT EXISTS (
     SELECT 1 FROM authorities
-    WHERE username = 'sergej'
+    WHERE username = 's'
 );
 
 

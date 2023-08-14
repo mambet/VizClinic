@@ -1,27 +1,22 @@
 package ru.viz.clinic.component.dialog;
 
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Address;
 import ru.viz.clinic.data.entity.Hospital;
-import ru.viz.clinic.help.Helper;
 
 import java.util.Objects;
 
 import static ru.viz.clinic.help.Translator.*;
 
 public class HospitalDialog extends VizConfirmDialog<Hospital> {
-    public HospitalDialog(@NotNull final Hospital hospital) {
-        super(DLH_CREATE_HOSPITAL, hospital);
+    private HospitalDialog(@NotNull final Hospital hospital, @NotNull final String header) {
+        super(header, hospital);
 
         final TextField hospitalName = new TextField(LBL_HOSPITAL_NAME);
         final TextField streetField = new TextField(LBL_STREET);
@@ -74,25 +69,26 @@ public class HospitalDialog extends VizConfirmDialog<Hospital> {
         binder.readBean(hospital);
     }
 
+    public HospitalDialog(@NotNull final Hospital hospital) {
+        this(hospital, DLH_UPDATE_HOSPITAL);
+    }
+
     public HospitalDialog() {
-        this(new Hospital());
+        this(new Hospital(), DLH_CREATE_HOSPITAL);
     }
 
     @Override
     protected void handleConfirm() {
-        fireEvent(new UpdateHospitalEvent(this, Objects.requireNonNull(item)));
+        fireEvent(new UpdateHospitalDialogEvent(this, Objects.requireNonNull(item)));
     }
 
     @Getter
-    public static class UpdateHospitalEvent extends ComponentEvent<HospitalDialog> {
-        private final Hospital hospital;
-
-        public UpdateHospitalEvent(
+    public static class UpdateHospitalDialogEvent extends AbstractDialogEvent<HospitalDialog, Hospital> {
+        public UpdateHospitalDialogEvent(
                 @NotNull final HospitalDialog source,
                 @NotNull final Hospital hospital
         ) {
-            super(Objects.requireNonNull(source), true);
-            this.hospital = hospital;
+            super(Objects.requireNonNull(source), Objects.requireNonNull(hospital));
         }
     }
 }

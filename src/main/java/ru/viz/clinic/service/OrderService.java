@@ -30,11 +30,12 @@ public class OrderService {
 
     @Transactional
     private Optional<Order> save(@NotNull final Order order) {
+        Objects.requireNonNull(order);
         try {
-            Optional<Order> savedOrder = Optional.of(orderRepository.save(order));
+            final Optional<Order> optionalOrder = Optional.of(orderRepository.save(order));
             Helper.showSuccessNotification(MSG_ORDER_SUCCESS_SAVED);
-            return savedOrder;
-        } catch (Exception e) {
+            return optionalOrder;
+        } catch (final Exception e) {
             Helper.showErrorNotification(ERR_ORDER_SAVED_FAILED);
             log.error("error at saving order with id {}, with error", order.getId(), e);
         }
@@ -45,12 +46,12 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order getById(Long id) {
+    public Order getById(final Long id) {
         return orderRepository.findById(id).orElse(null);
     }
 
     @Transactional
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         orderRepository.deleteById(id);
     }
 

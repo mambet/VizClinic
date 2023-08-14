@@ -5,25 +5,18 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.userdetails.UserDetails;
+import ru.viz.clinic.component.dialog.CommentRecordDialog;
+import ru.viz.clinic.component.dialog.LeaveRecordDialog;
 import ru.viz.clinic.component.grid.EngineerOrderGrid;
 import ru.viz.clinic.data.EventType;
-import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Order;
-import ru.viz.clinic.help.Helper;
-import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.service.EngineerService;
 import ru.viz.clinic.service.OrderService;
-import ru.viz.clinic.service.PersonalService;
 import ru.viz.clinic.service.RecordService;
 import ru.viz.clinic.views.MainLayout;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static ru.viz.clinic.help.Translator.*;
 
 @PageTitle("Заявки")
 @Route(value = "EngineerOrderView", layout = MainLayout.class)
@@ -46,38 +39,44 @@ public class EngineerOrderView extends OrderView<EngineerOrderGrid> {
     }
 
     private void createGrid() {
-        this.orderGrid = new EngineerOrderGrid(this.engineer, Objects.requireNonNull(recordService));
-        this.orderGrid.setItems(orderService.getByHospital(this.engineer.getHospital().getId()));
-        this.orderGrid.addListener(EngineerOrderGrid.AdoptEvent.class, this::handleAdoptEvent);
-        this.orderGrid.addListener(EngineerOrderGrid.CommentEvent.class, this::handleCommentEvent);
-        this.orderGrid.addListener(EngineerOrderGrid.LeaveEvent.class, this::handleLeaveEvent);
+        this.orderGrid = new EngineerOrderGrid(engineer, Objects.requireNonNull(recordService));
+        this.orderGrid.setItems(orderService.getByHospital(engineer.getHospital().getId()));
+        this.orderGrid.addListener(EngineerOrderGrid.AdoptGridEvent.class, this::handleAdoptEvent);
+        this.orderGrid.addListener(EngineerOrderGrid.CommentGridEvent.class, this::handleCommentEvent);
+        this.orderGrid.addListener(EngineerOrderGrid.LeaveGridEvent.class, this::handleLeaveEvent);
         this.add(orderGrid);
     }
 
-    private void handleAdoptEvent(@NotNull final EngineerOrderGrid.AdoptEvent event) {
+    private void handleAdoptEvent(@NotNull final EngineerOrderGrid.AdoptGridEvent event) {
         Objects.requireNonNull(event);
-        final Order order = Objects.requireNonNull(event.getOrder());
+        final Order order = Objects.requireNonNull(event.getEntity());
         orderService.adoptOrder(order, engineer).ifPresent(savedOrder -> {
             recordService.addRecord(EventType.ADOPT_ORDER, engineer, savedOrder);
             updateGrid();
         });
     }
 
-    private void handleCommentEvent(@NotNull final EngineerOrderGrid.CommentEvent event) {
+    private void handleCommentEvent(@NotNull final EngineerOrderGrid.CommentGridEvent event) {
         Objects.requireNonNull(event);
-        final Order order = Objects.requireNonNull(event.getOrder());
-        final String comment = Objects.requireNonNull(event.getComment());
-        recordService.addRecord(EventType.NOTE, engineer, order, comment);
-        updateGrid();
-    }
-
-    private void handleLeaveEvent(EngineerOrderGrid.LeaveEvent event) {
-        Objects.requireNonNull(event);
-        final Order order = Objects.requireNonNull(event.getOrder());
-        orderService.leaveOrder(order).ifPresent(savedOrder -> {
-            recordService.addRecord(EventType.LIVE_ORDER, engineer, savedOrder, event.getComment());
+        final Order order = Objects.requireNonNull(event.getEntity());
+        final CommentRecordDialog commentRecordDialog = new CommentRecordDialog(order);
+        commentRecordDialog.addListener(CommentRecordDialog.CommentOrderEvent.class, e -> {
+            recordService.addRecord(EventType.NOTE, engineer, order, e.getComment());
             updateGrid();
         });
+        commentRecordDialog.open();
+    }
+
+    private void handleLeaveEvent(final EngineerOrderGrid.LeaveGridEvent event) {
+        Objects.requireNonNull(event);
+        final Order order = Objects.requireNonNull(event.getEntity());
+        final LeaveRecordDialog leaveRecordDialog = new LeaveRecordDialog(order);
+        leaveRecordDialog.addListener(LeaveRecordDialog.LeaveOrderEvent.class, e -> {
+            orderService.leaveOrder(order).ifPresent(savedOrder -> recordService.addRecord(EventType.LIVE_ORDER,
+                    engineer, savedOrder, e.getComment()));
+            updateGrid();
+        });
+        leaveRecordDialog.open();
     }
 
     private void updateGrid() {

@@ -64,15 +64,13 @@ public class OrderDialog extends VizConfirmDialog<Order> {
     }
 
     @Getter
-    public static class UpdateOrder extends ComponentEvent<OrderDialog> {
-        private final Order order;
-
+    public static class UpdateOrder extends AbstractDialogEvent<OrderDialog, Order> {
         public UpdateOrder(
                 @NotNull final OrderDialog source,
                 @NotNull final Order order
         ) {
-            super(Objects.requireNonNull(source), true);
-            this.order = order;
+            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
+
         }
     }
 }

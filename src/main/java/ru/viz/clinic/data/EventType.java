@@ -9,7 +9,7 @@ public enum EventType {
     FINISH_ORDER("закрыл");
     final String value;
 
-    EventType(String value) {
+    EventType(final String value) {
         this.value = value;
     }
 

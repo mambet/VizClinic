@@ -26,36 +26,23 @@ public class VaadinServiceInitListenerImpl implements VaadinServiceInitListener 
     }
 
     @Override
-    public void serviceInit(ServiceInitEvent event) {
+    public void serviceInit(final ServiceInitEvent event) {
         event.getSource().addUIInitListener(uiEvent -> {
             final UI ui = uiEvent.getUI();
             ui.addBeforeEnterListener(this::authenticateNavigation);
         });
     }
 
-    private void authenticateNavigation(BeforeEnterEvent event) {
+    private void authenticateNavigation(final BeforeEnterEvent event) {
         //if user has role TEMP reroute to ChangePassword
         authenticationService.getUserDetails()
                 .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
                                 StringUtils.equals(grantedAuthority.getAuthority(), Role.TEMP.getAuthority()))
                         .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(ChangePassword.class));
 
-        //if user has role ENGINEER reroute to ChangePassword
-        authenticationService.getUserDetails()
-                .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
-                                StringUtils.equals(grantedAuthority.getAuthority(), Role.ENGINEER.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(EngineerOrderView.class));
-
-        //if user has role MEDIC reroute to ChangePassword
-        authenticationService.getUserDetails()
-                .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
-                                StringUtils.equals(grantedAuthority.getAuthority(), Role.MEDIC.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(MedicOrderView.class));
-
         //if user not login in, reroute to LoginView
         if (!LoginView.class.equals(event.getNavigationTarget()) && !authenticationService.isUserLoggedIn()) {
             event.forwardTo(LoginView.class);
         }
-
     }
 }

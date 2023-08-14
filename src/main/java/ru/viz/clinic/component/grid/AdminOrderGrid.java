@@ -22,5 +22,4 @@ public class AdminOrderGrid extends OrderGrid {
             layout.add(showRecords(order));
         })).setAutoWidth(true);
     }
-
 }

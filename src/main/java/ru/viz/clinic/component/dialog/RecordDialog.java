@@ -1,10 +1,15 @@
 package ru.viz.clinic.component.dialog;
 
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.shared.Registration;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.Objects;
 
@@ -38,7 +43,27 @@ public abstract class RecordDialog extends ConfirmDialog {
         this.add(commentTextArea);
     }
 
-    private void valuesChanges(AbstractField.ComponentValueChangeEvent<TextArea, String> textAreaStringComponentValueChangeEvent) {
+    private void valuesChanges(final AbstractField.ComponentValueChangeEvent<TextArea, String> textAreaStringComponentValueChangeEvent) {
         btnConfirm.setEnabled(!commentTextArea.getValue().isEmpty());
+    }
+    @Override
+    public <E extends ComponentEvent<?>> Registration addListener(
+            final Class<E> eventType,
+            final ComponentEventListener<E> listener
+    ) {
+        return getEventBus().addListener(eventType, listener);
+    }
+
+    @Getter
+    public abstract static class AbstractDialogEvent<T extends Component, E> extends ComponentEvent<T> {
+        private final E entity;
+
+        protected AbstractDialogEvent(
+                @NotNull final T source,
+                @NotNull final E entity
+        ) {
+            super(Objects.requireNonNull(source), false);
+            this.entity = Objects.requireNonNull(entity);
+        }
     }
 }

@@ -2,6 +2,7 @@ package ru.viz.clinic.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(@NotNull final HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/images/*.png")).permitAll();
 
@@ -43,15 +44,15 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(DataSource dataSource) throws Exception {
-        var authProvider = new DaoAuthenticationProvider();
+    public AuthenticationManager authenticationManager(@NotNull final DataSource dataSource) throws Exception {
+        final var authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(getUserDetailsManager(dataSource));
         authProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(authProvider);
     }
 
     @Bean
-    public JdbcUserDetailsManager getUserDetailsManager(DataSource dataSource) {
+    public JdbcUserDetailsManager getUserDetailsManager(@NotNull final DataSource dataSource) {
         return new JdbcUserDetailsManager(dataSource);
     }
 

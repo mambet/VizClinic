@@ -7,18 +7,17 @@ import ru.viz.clinic.data.Gender;
 
 import java.time.LocalDate;
 
-
-
 @Setter
 @Getter
 @MappedSuperclass
-public class Personal extends AbstractEntity{
+public class Personal extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
-    @SequenceGenerator(name = "idgenerator", initialValue = 1000)
+    @SequenceGenerator(name = "idgenerator", initialValue = 3000)
     private Long id;
-    @NotBlank(message = "Vorname ist erforderlich")
+    @NotBlank(message = "username is required")
     private String username;
+    private String tempPass;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;

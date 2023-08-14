@@ -54,15 +54,12 @@ public class PassChangeLayout extends VerticalLayout {
                 .bind(PassDTO::getNewPassRepeat, PassDTO::setNewPassRepeat);
         binder.setBean(new PassDTO());
 
-        FormLayout formLayout = new FormLayout();
+        final FormLayout formLayout = new FormLayout();
         formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-        //        formLayout.setWidth(300, Unit.PIXELS);
-        //        formLayout.setHeight(300, Unit.PIXELS);
-
         formLayout.add(oldPasswordField, newPasswordField, newPasswordFieldRepeat);
 
         this.setWidth(300, Unit.PIXELS);
-        H3 label = new H3(DLH_CHANGE_PASS);
+        final H3 label = new H3(DLH_CHANGE_PASS);
         this.setHorizontalComponentAlignment(Alignment.END, confirm);
         this.setHorizontalComponentAlignment(Alignment.CENTER, label);
 
@@ -72,11 +69,11 @@ public class PassChangeLayout extends VerticalLayout {
         newPasswordFieldRepeat.addValueChangeListener(this::validateNew);
     }
 
-    private void validateNew(AbstractField.ComponentValueChangeEvent<PasswordField, String> passwordFieldStringComponentValueChangeEvent) {
+    private void validateNew(final AbstractField.ComponentValueChangeEvent<PasswordField, String> passwordFieldStringComponentValueChangeEvent) {
         bindNew.validate();
     }
 
-    private void validateRepeat(AbstractField.ComponentValueChangeEvent<PasswordField, String> passwordFieldStringComponentValueChangeEvent) {
+    private void validateRepeat(final AbstractField.ComponentValueChangeEvent<PasswordField, String> passwordFieldStringComponentValueChangeEvent) {
         bindRepeat.validate();
     }
 
@@ -109,7 +106,7 @@ public class PassChangeLayout extends VerticalLayout {
         }
     }
 
-    private void handleConfirm(ClickEvent<Button> buttonClickEvent) {
+    private void handleConfirm(final ClickEvent<Button> buttonClickEvent) {
         if (binder.isValid()) {
             passDTOConsumer.accept(binder.getBean());
         }

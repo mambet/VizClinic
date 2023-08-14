@@ -35,26 +35,26 @@ public class MedicOrderGrid extends OrderGrid {
 
     private Button editOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        Button button = new Button(new Icon(VaadinIcon.EDIT));
+        final Button button = new Button(new Icon(VaadinIcon.EDIT));
         button.setTooltipText(TTP_MODIFY_ORDER);
-        button.addClickListener(e -> fireEvent(new UpdateEvent(this, order)));
+        button.addClickListener(e -> fireEvent(new UpdateGridEvent(this, order)));
         return button;
     }
 
     private Button closeOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        Button button = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
+        final Button button = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
         button.setTooltipText(TTP_CLOSE_ORDER);
         button.addClickListener(e -> {
-            OrderCloseDialog orderCloseDialog = new OrderCloseDialog();
-            orderCloseDialog.addConfirmListener(confirmEvent -> fireEvent(new CloseEvent(this, order)));
+            final OrderCloseDialog orderCloseDialog = new OrderCloseDialog();
+            orderCloseDialog.addConfirmListener(confirmEvent -> fireEvent(new CloseGridEvent(this, order)));
             orderCloseDialog.open();
         });
         return button;
     }
 
-    public static class UpdateEvent extends OrderAbstractEvent<MedicOrderGrid> {
-        public UpdateEvent(
+    public static class UpdateGridEvent extends AbstractGridEvent<MedicOrderGrid, Order> {
+        public UpdateGridEvent(
                 @NotNull final MedicOrderGrid source,
                 @NotNull final Order order
         ) {
@@ -62,8 +62,17 @@ public class MedicOrderGrid extends OrderGrid {
         }
     }
 
-    public static class CloseEvent extends OrderAbstractEvent<MedicOrderGrid> {
-        public CloseEvent(
+    public static class CloseGridEvent extends AbstractGridEvent<MedicOrderGrid, Order> {
+        public CloseGridEvent(
+                @NotNull final MedicOrderGrid source,
+                @NotNull final Order order
+        ) {
+            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
+        }
+    }
+
+    public static class DeleteGridEvent extends AbstractGridEvent<MedicOrderGrid, Order> {
+        public DeleteGridEvent(
                 @NotNull final MedicOrderGrid source,
                 @NotNull final Order order
         ) {

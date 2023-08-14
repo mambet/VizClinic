@@ -11,7 +11,7 @@ public enum Role {
         return "ROLE_" + this;
     }
 
-    public static Optional<Role> authorityToRole(String authority) {
+    public static Optional<Role> authorityToRole(final String authority) {
         if (StringUtils.equals(authority, Role.MEDIC.getAuthority())) {
             return Optional.of(Role.MEDIC);
         }

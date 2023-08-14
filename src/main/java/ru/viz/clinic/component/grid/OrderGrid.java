@@ -1,18 +1,12 @@
 package ru.viz.clinic.component.grid;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.shared.Registration;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 import ru.viz.clinic.component.dialog.ShowRecordDialog;
 import ru.viz.clinic.data.entity.Order;
 import ru.viz.clinic.help.Translator;
@@ -25,7 +19,7 @@ import java.util.Objects;
 import static ru.viz.clinic.converter.PersonalToStringConverter.convertToPresentation;
 import static ru.viz.clinic.help.Helper.getDateTimeRenderer;
 
-public abstract class OrderGrid extends Grid<Order> {
+public abstract class OrderGrid extends AbstractGrid<Order> {
     private final RecordService recordService;
 
     public OrderGrid(@NotNull final RecordService recordService) {
@@ -99,7 +93,7 @@ public abstract class OrderGrid extends Grid<Order> {
     @Override
     public GridListDataView<Order> setItems(@NotNull final Collection<Order> items) {
         Objects.requireNonNull(items);
-        GridListDataView<Order> recordGridListDataView = super.setItems(items);
+        final GridListDataView<Order> recordGridListDataView = super.setItems(items);
         this.getListDataView().setSortOrder(record -> {
             if (record.getCreateTime() == null) {
                 return LocalDateTime.now();
@@ -112,30 +106,10 @@ public abstract class OrderGrid extends Grid<Order> {
 
     public Button showRecords(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        Button button = new Button(new Icon(VaadinIcon.INFO_CIRCLE_O));
+        final Button button = new Button(new Icon(VaadinIcon.INFO_CIRCLE_O));
         button.setTooltipText("Протокол");
         button.addClickListener(e -> new ShowRecordDialog(recordService.getByOrderId(order.getId())).open());
         return button;
     }
 
-    @Override
-    public <E extends ComponentEvent<?>> Registration addListener(
-            Class<E> eventType,
-            ComponentEventListener<E> listener
-    ) {
-        return getEventBus().addListener(eventType, listener);
-    }
-
-    @Getter
-    public abstract static class OrderAbstractEvent<T extends Component> extends ComponentEvent<T> {
-        private final Order order;
-
-        protected OrderAbstractEvent(
-                @NotNull final T source,
-                @NotNull final Order order
-        ) {
-            super(Objects.requireNonNull(source), false);
-            this.order = Objects.requireNonNull(order);
-        }
-    }
 }

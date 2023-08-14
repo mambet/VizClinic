@@ -57,7 +57,7 @@ public class TopicBox extends VerticalLayout {
         horizontalLayout.add(hide);
     }
 
-    private void listenHide(ClickEvent<Button> buttonClickEvent) {
+    private void listenHide(final ClickEvent<Button> buttonClickEvent) {
         verticalLayout.setVisible(!verticalLayout.isVisible());
         if (verticalLayout.isVisible()) {
             hide.setIcon(new Icon(VaadinIcon.EYE_SLASH));
@@ -78,7 +78,7 @@ public class TopicBox extends VerticalLayout {
             @NotNull final Component... components
     ) {
 
-        TopicBox topicBox = getInstance(Objects.requireNonNull(label), Objects.requireNonNull(components));
+        final TopicBox topicBox = getInstance(Objects.requireNonNull(label), Objects.requireNonNull(components));
         topicBox.appendEye();
         return topicBox;
     }

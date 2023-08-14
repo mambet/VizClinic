@@ -4,7 +4,7 @@ public enum Gender {
     M("Муж"), F("Жен");
     final String value;
 
-    Gender(String value) {
+    Gender(final String value) {
         this.value = value;
     }
 

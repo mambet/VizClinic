@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class PersonalToStringConverter {
-    public static String convertToPresentation(Personal personal ) {
+    public static String convertToPresentation(final Personal personal ) {
         if (personal == null) {
             return Strings.EMPTY;
         }

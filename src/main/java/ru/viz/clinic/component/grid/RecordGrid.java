@@ -27,7 +27,7 @@ public class RecordGrid extends Grid<Record> {
                 .setComparator(Record::getRecordTime)
                 .setAutoWidth(true);
         this.addColumn(record -> {
-            Personal personal = record.getEngineer() != null ? record.getEngineer() : record.getMedic();
+            final Personal personal = record.getEngineer() != null ? record.getEngineer() : record.getMedic();
             return convertToPresentation(personal);
         }).setAutoWidth(true);
         this.addColumn(record -> record.getEventType().getValue()).setAutoWidth(true);
@@ -42,7 +42,7 @@ public class RecordGrid extends Grid<Record> {
     @Override
     public GridListDataView<Record> setItems(@NotNull final Collection<Record> items) {
         Objects.requireNonNull(items);
-        GridListDataView<Record> recordGridListDataView = super.setItems(items);
+        final GridListDataView<Record> recordGridListDataView = super.setItems(items);
         this.getListDataView().setSortOrder(record -> {
             if (record.getRecordTime() == null) {
                 return LocalDateTime.now();

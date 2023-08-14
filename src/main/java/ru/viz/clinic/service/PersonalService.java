@@ -47,8 +47,8 @@ public class PersonalService {
         Role role = null;
         String username = null;
 
-        Optional<Medic> medicOptional = medicService.getLoggedMedic();
-        Optional<Engineer> engineerOptional = engineerService.getLoggedEngineer();
+        final Optional<Medic> medicOptional = medicService.getLoggedMedic();
+        final Optional<Engineer> engineerOptional = engineerService.getLoggedEngineer();
 
         if (medicOptional.isPresent()) {
             role = Role.MEDIC;
@@ -61,10 +61,10 @@ public class PersonalService {
             try {
                 authenticationService.updatePassAndRole(username, Set.of(role), currentPass, newPass);
                 return Optional.of(role);
-            } catch (BadCredentialsException e) {
+            } catch (final BadCredentialsException e) {
                 Helper.showErrorNotification(ERR_BAD_CREDENTIALS);
-                log.error("error at update pass and role", e);
-            } catch (Exception e) {
+                log.error("invalid pass", e);
+            } catch (final Exception e) {
                 Helper.showErrorNotification(ERR_AUTHENTICATION);
                 log.error("error at update pass and role", e);
             }

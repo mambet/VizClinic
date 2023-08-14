@@ -17,7 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Theme(value = "vizclinic", variant =  Lumo.DARK)
 public class Application implements AppShellConfigurator {
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(Application.class, args);
     }
 

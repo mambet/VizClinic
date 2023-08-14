@@ -30,11 +30,11 @@ public class RecordService {
     }
 
     @Transactional
-    public void save(Record record) {
+    public void save(final Record record) {
         try {
             recordRepository.save(record);
             Helper.showSuccessNotification(MSG_RECORD_UPDATED);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Helper.showErrorNotification(ERR_RECORD_SAVED_FAILED);
             log.error("saving record failed, with error", e);
         }
@@ -44,11 +44,11 @@ public class RecordService {
         return recordRepository.findAll();
     }
 
-    public Record getRecordById(Long id) {
+    public Record getRecordById(final Long id) {
         return recordRepository.findById(id).orElse(null);
     }
 
-    public void deleteRecordById(Long id) {
+    public void deleteRecordById(final Long id) {
         recordRepository.deleteById(id);
     }
 
@@ -58,7 +58,7 @@ public class RecordService {
             @NotNull final Order order,
             @NotNull final String comment
     ) {
-        Record record = new Record();
+        final Record record = new Record();
         record.setEventType(Objects.requireNonNull(eventType));
         record.setComment(Objects.requireNonNull(comment));
         record.setOrder(Objects.requireNonNull(order));

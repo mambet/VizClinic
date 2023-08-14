@@ -1,12 +1,8 @@
 package ru.viz.clinic.security;
 
 import com.vaadin.flow.spring.security.AuthenticationContext;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,13 +17,14 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.data.Role;
-import ru.viz.clinic.data.entity.Engineer;
-import ru.viz.clinic.data.entity.Medic;
-import ru.viz.clinic.data.entity.Personal;
-import ru.viz.clinic.data.model.PersonalDTO;
-import ru.viz.clinic.service.PersonalService;
+import ru.viz.clinic.help.Helper;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class AuthenticationService {
     private final AuthenticationContext authenticationContext;
     private final AuthenticationManager authenticationManager;
@@ -57,28 +54,37 @@ public class AuthenticationService {
     }
 
     public boolean isUserLoggedIn() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken)
                 && authentication.isAuthenticated();
     }
 
-    @Transactional
-    public void createTempUserDetails(PersonalDTO personalDTO) {
-        UserDetails userDetails = User.builder()
-                .disabled(false)
-                .password(passwordEncoder.encode(personalDTO.getPassword()))
-                .username(personalDTO.getUsername())
-                .authorities(new SimpleGrantedAuthority(Role.TEMP.getAuthority()))
-                .build();
-        jdbcUserDetailsManager.createUser(userDetails);
+    public void createTempUserDetails(
+            @NotNull final String user,
+            @NotNull final String pass
+    ) {
+        Objects.requireNonNull(user);
+        Objects.requireNonNull(pass);
+        try {
+            final UserDetails userDetails = User.builder()
+                    .disabled(false)
+                    .password(passwordEncoder.encode(pass))
+                    .username(user)
+                    .authorities(new SimpleGrantedAuthority(Role.TEMP.getAuthority()))
+                    .build();
+            jdbcUserDetailsManager.createUser(userDetails);
+        } catch (final Exception e) {
+            log.error("error ", e);
+            Helper.showErrorNotification("ошибка при создании пользователя");
+        }
     }
 
     public void authenticate(
             @NotNull final String username,
             @NotNull final String password
     ) {
-        Authentication authentication = authenticationManager.authenticate(
+        final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -97,8 +103,6 @@ public class AuthenticationService {
                 .collect(Collectors.toList());
     }
 
-
-
     public Optional<Role> getLoggedUserRole() {
         return getLoggedUserAuthority()
                 .stream()
@@ -109,7 +113,7 @@ public class AuthenticationService {
     }
 
     public Set<String> getLoggedUserAuthority() {
-        AtomicReference<Set<String>> atomicReference = new AtomicReference<>(new HashSet<>());
+        final AtomicReference<Set<String>> atomicReference = new AtomicReference<>(new HashSet<>());
         getUserDetails().ifPresent(userDetails ->
                 atomicReference.set(userDetails
                         .getAuthorities()
@@ -119,8 +123,6 @@ public class AuthenticationService {
         );
         return atomicReference.get();
     }
-
-
 
     @Transactional
     public void updatePassAndRole(
@@ -137,7 +139,7 @@ public class AuthenticationService {
         getUserDetails().ifPresentOrElse(userDetails -> {
             unauthenticated(username, currentPass);
 
-            UserDetails newUserDetails = User.builder()
+            final UserDetails newUserDetails = User.builder()
                     .username(username)
                     .authorities(getAuthorities(roles))
                     .password(passwordEncoder.encode(newPass))

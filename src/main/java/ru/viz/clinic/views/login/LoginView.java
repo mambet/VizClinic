@@ -17,19 +17,17 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Translator.*;
 
 @AnonymousAllowed
-@PageTitle("Login")
+@PageTitle(PTT_LOGIN)
 @Route(value = "login")
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
     private final AuthenticationService authenticationService;
 
-    public LoginView(
-            @NotNull final AuthenticationService authenticationService
-    ) {
+    public LoginView(@NotNull final AuthenticationService authenticationService) {
         this.authenticationService = Objects.requireNonNull(authenticationService);
 
         setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
-        LoginI18n i18n = LoginI18n.createDefault();
+        final LoginI18n i18n = LoginI18n.createDefault();
         i18n.getErrorMessage().setTitle(ERR_MSG_LOGIN_TITLE);
         i18n.getErrorMessage().setMessage(ERR_MSG_LOGIN_FAILED);
         i18n.setHeader(new LoginI18n.Header());
@@ -49,12 +47,12 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
         this.addLoginListener(this::login);
     }
 
-    private void login(LoginEvent loginEvent) {
+    private void login(final LoginEvent loginEvent) {
         authenticationService.authenticate(loginEvent.getUsername(), loginEvent.getPassword());
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+    public void beforeEnter(final BeforeEnterEvent beforeEnterEvent) {
         if (authenticationService.isUserLoggedIn()) {
             setOpened(false);
             beforeEnterEvent.forwardTo("");

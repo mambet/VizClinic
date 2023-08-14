@@ -30,8 +30,9 @@ import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import ru.viz.clinic.security.AuthenticationService;
+import ru.viz.clinic.views.medic.MedicEquipmentView;
 import ru.viz.clinic.views.order.EngineerOrderView;
-import ru.viz.clinic.views.login.PersonalView;
+import ru.viz.clinic.views.admin.AdminView;
 import ru.viz.clinic.views.order.MedicOrderView;
 import ru.viz.clinic.views.order.AdminOrderView;
 
@@ -48,18 +49,18 @@ public class MainLayout extends AppLayout {
         private final Class<? extends Component> view;
 
         public MenuItemInfo(
-                String menuTitle,
-                Component icon,
-                Class<? extends Component> view
+                final String menuTitle,
+                final Component icon,
+                final Class<? extends Component> view
         ) {
             this.view = view;
-            RouterLink link = new RouterLink();
+            final RouterLink link = new RouterLink();
             // Use Lumo classnames for various styling
             link.addClassNames(Display.FLEX, Gap.XSMALL, Height.MEDIUM, AlignItems.CENTER, Padding.Horizontal.SMALL,
                     TextColor.BODY);
             link.setRoute(view);
 
-            Span text = new Span(menuTitle);
+            final Span text = new Span(menuTitle);
             // Use Lumo classnames for various styling
             text.addClassNames(FontWeight.MEDIUM, FontSize.MEDIUM, Whitespace.NOWRAP);
 
@@ -79,8 +80,8 @@ public class MainLayout extends AppLayout {
     private final AccessAnnotationChecker accessChecker;
 
     public MainLayout(
-            AuthenticationService authenticationService,
-            AccessAnnotationChecker accessChecker
+            final AuthenticationService authenticationService,
+            final AccessAnnotationChecker accessChecker
     ) {
         this.authenticationService = authenticationService;
         this.accessChecker = accessChecker;
@@ -89,32 +90,32 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createHeaderContent() {
-        Header header = new Header();
+        final Header header = new Header();
         header.addClassNames(BoxSizing.BORDER, Display.FLEX, FlexDirection.COLUMN, Width.FULL);
 
-        Div layout = new Div();
+        final Div layout = new Div();
         layout.addClassNames(Display.FLEX, AlignItems.CENTER, Padding.Horizontal.LARGE);
 
-        H1 appName = new H1(DLH_LOGIN_TITLE);
+        final H1 appName = new H1(DLH_LOGIN_TITLE);
         appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE);
         layout.add(appName);
 
-        Optional<UserDetails> maybeUser = authenticationService.getUserDetails();
+        final Optional<UserDetails> maybeUser = authenticationService.getUserDetails();
         if (maybeUser.isPresent()) {
-            UserDetails person = maybeUser.get();
+            final UserDetails person = maybeUser.get();
 
-            Avatar avatar = new Avatar(person.getUsername());
+            final Avatar avatar = new Avatar(person.getUsername());
             //            StreamResource resource = new StreamResource("profile-pic",
             //                    () -> new ByteArrayInputStream(user.getProfilePicture()));
             //            avatar.setImageResource(resource);
             avatar.setThemeName("xsmall");
             avatar.getElement().setAttribute("tabindex", "-1");
 
-            MenuBar userMenu = new MenuBar();
+            final MenuBar userMenu = new MenuBar();
             userMenu.setThemeName("tertiary-inline contrast");
 
-            MenuItem userName = userMenu.addItem("");
-            Div div = new Div();
+            final MenuItem userName = userMenu.addItem("");
+            final Div div = new Div();
             div.add(avatar);
             div.add(person.getUsername());
             div.add(new Icon("lumo", "dropdown"));
@@ -128,19 +129,19 @@ public class MainLayout extends AppLayout {
 
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
+            final Anchor loginLink = new Anchor("login", "Sign in");
             layout.add(loginLink);
         }
 
-        Nav nav = new Nav();
+        final Nav nav = new Nav();
         nav.addClassNames(Display.FLEX, Overflow.AUTO, Padding.Horizontal.MEDIUM, Padding.Vertical.XSMALL);
 
         // Wrap the links in a list; improves accessibility
-        UnorderedList list = new UnorderedList();
+        final UnorderedList list = new UnorderedList();
         list.addClassNames(Display.FLEX, Gap.SMALL, ListStyleType.NONE, Margin.NONE, Padding.NONE);
         nav.add(list);
 
-        for (MenuItemInfo menuItem : createMenuItems()) {
+        for (final MenuItemInfo menuItem : createMenuItems()) {
             if (accessChecker.hasAccess(menuItem.getView())) {
                 list.add(menuItem);
             }
@@ -154,10 +155,11 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{
-                new MenuItemInfo(MIT_PERSONAL, LineAwesomeIcon.README.create(), PersonalView.class), //
+                new MenuItemInfo(MIT_PERSONAL, LineAwesomeIcon.README.create(), AdminView.class), //
                 new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), MedicOrderView.class), //
                 new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), EngineerOrderView.class), //
                 new MenuItemInfo(MIT_ORDER, LineAwesomeIcon.PEOPLE_CARRY_SOLID.create(), AdminOrderView.class), //
+                new MenuItemInfo(MIT_EQUIPMENT, LineAwesomeIcon.ACCUSOFT.create(), MedicEquipmentView.class), //
         };
     }
 }

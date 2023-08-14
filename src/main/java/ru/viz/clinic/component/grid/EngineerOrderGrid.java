@@ -7,8 +7,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import ru.viz.clinic.component.dialog.CommentRecordDialog;
-import ru.viz.clinic.component.dialog.LeaveRecordDialog;
 import ru.viz.clinic.data.OrderState;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Order;
@@ -45,50 +43,33 @@ public class EngineerOrderGrid extends OrderGrid {
         })).setAutoWidth(true);
     }
 
-    public void commentOrder(
-            Order order,
-            String comment
-    ) {
-        fireEvent(new CommentEvent(this, order, comment));
-    }
-
-    public void leaveOrder(
-            Order order,
-            String comment
-    ) {
-        fireEvent(new LeaveEvent(this, order, comment));
-    }
-
     //for Engineer
     private Button adoptOrderButton(@NotNull final Order order) {
         Objects.requireNonNull(order);
-        Button button = new Button(new Icon(VaadinIcon.SCREWDRIVER));
+        final Button button = new Button(new Icon(VaadinIcon.SCREWDRIVER), e -> fireEvent(new AdoptGridEvent(this,
+                Objects.requireNonNull(order))));
         button.setTooltipText(TTP_ADOPT_ORDER);
-        button.addClickListener(e -> {
-            fireEvent(new AdoptEvent(this, order));
-        });
         return button;
     }
 
     //for Engineer
     private Button leaveOrderButton(@NotNull final Order order) {
-        Button button = new Button(new Icon(VaadinIcon.EXIT_O), e -> {
-            new LeaveRecordDialog(Objects.requireNonNull(order), this::leaveOrder).open();
-        });
+        final Button button = new Button(new Icon(VaadinIcon.EXIT_O), e -> fireEvent(new LeaveGridEvent(this,
+                Objects.requireNonNull(order))));
         button.setTooltipText(TTP_LEAVE_ORDER);
         return button;
     }
 
     //for Engineer
     private Button commentOrderButton(@NotNull final Order order) {
-        Button button = new Button(new Icon(VaadinIcon.COMMENT_O),
-                e -> new CommentRecordDialog(Objects.requireNonNull(order), this::commentOrder).open());
+        final Button button = new Button(new Icon(VaadinIcon.COMMENT_O), e -> fireEvent(new CommentGridEvent(this,
+                Objects.requireNonNull(order))));
         button.setTooltipText(TTP_COMMENT_ORDER);
         return button;
     }
 
-    public static class AdoptEvent extends OrderAbstractEvent<EngineerOrderGrid> {
-        public AdoptEvent(
+    public static class AdoptGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
+        public AdoptGridEvent(
                 @NotNull final EngineerOrderGrid source,
                 @NotNull final Order order
         ) {
@@ -97,31 +78,23 @@ public class EngineerOrderGrid extends OrderGrid {
     }
 
     @Getter
-    public static class CommentEvent extends OrderAbstractEvent<EngineerOrderGrid> {
-        private final String comment;
-
-        public CommentEvent(
+    public static class CommentGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
+        public CommentGridEvent(
                 @NotNull final EngineerOrderGrid source,
-                @NotNull final Order order,
-                @NotNull final String comment
+                @NotNull final Order order
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(order));
-            this.comment = Objects.requireNonNull(comment);
         }
     }
 
     @Getter
-    public static class LeaveEvent extends OrderAbstractEvent<EngineerOrderGrid> {
-        private final String comment;
-
-        public LeaveEvent(
+    public static class LeaveGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
+        public LeaveGridEvent(
                 @NotNull final EngineerOrderGrid source,
-                @NotNull final Order order,
-                @NotNull final String comment
+                @NotNull final Order order
 
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(order));
-            this.comment = Objects.requireNonNull(comment);
         }
     }
 }

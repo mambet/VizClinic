@@ -12,7 +12,7 @@ import lombok.ToString;
 @Table(name = "address")
 @Data
 @ToString(includeFieldNames = false)
-public class Address extends AbstractEntity{
+public class Address extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ToString.Exclude

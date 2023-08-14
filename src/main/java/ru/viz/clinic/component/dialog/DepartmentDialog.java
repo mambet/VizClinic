@@ -45,15 +45,12 @@ public class DepartmentDialog extends VizConfirmDialog<Department> {
     }
 
     @Getter
-    public static class UpdateDepartmentEvent extends ComponentEvent<DepartmentDialog> {
-        private final Department department;
-
+    public static class UpdateDepartmentEvent extends AbstractDialogEvent<DepartmentDialog, Department> {
         public UpdateDepartmentEvent(
                 @NotNull final DepartmentDialog source,
                 @NotNull final Department department
         ) {
-            super(Objects.requireNonNull(source), true);
-            this.department = department;
+            super(Objects.requireNonNull(source), Objects.requireNonNull(department));
         }
     }
 }
