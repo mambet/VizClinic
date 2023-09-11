@@ -1,49 +1,45 @@
 package ru.viz.clinic.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
-import ru.viz.clinic.data.entity.Personal;
-import ru.viz.clinic.data.repository.CommonRepository;
-import ru.viz.clinic.help.Helper;
+import ru.viz.clinic.data.entity.AbstractEntity;
+import ru.viz.clinic.repository.CommonRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-
-import static ru.viz.clinic.help.Translator.MSG_ENGINEER_SUCCESS_SAVED;
+import java.util.function.Consumer;
 
 @Slf4j
-public abstract class AbstractService<E extends Personal, R extends CommonRepository<E>> implements CommonService<E> {
+
+public abstract class AbstractService<E extends AbstractEntity, R extends CommonRepository<E>> {
     protected final R repository;
 
-    @Autowired
-    public AbstractService(
-            final R repository
-    ) {
+    public AbstractService(final R repository) {
         this.repository = repository;
-    }
-
-    public Optional<E> findByUsername(final String name) {
-        final E byUsername = repository.findByUsername(name);
-        if (byUsername != null) {
-            return Optional.of(byUsername);
-        }
-        return Optional.empty();
     }
 
     public Optional<E> get(final Long id) {
         return repository.findById(id);
     }
 
-    public E update(final E personal) {
-        return repository.save(personal);
-    }
-
-    public void delete(final Long id) {
-        repository.deleteById(id);
+    public void delete(
+            @NotNull final E e,
+            @NotNull final Consumer<E> successHandler,
+            @NotNull final Consumer<E> errorHandler
+    ) {
+        repository.delete(e);
+        Objects.requireNonNull(e);
+        Objects.requireNonNull(successHandler);
+        Objects.requireNonNull(errorHandler);
+        try {
+            repository.delete(e);
+            successHandler.accept(e);
+        } catch (final Exception ex) {
+            errorHandler.accept(e);
+        }
     }
 
     public Page<E> list(final Pageable pageable) {
@@ -54,12 +50,33 @@ public abstract class AbstractService<E extends Personal, R extends CommonReposi
         return (int) repository.count();
     }
 
-    public List<E> getAll() {
-        return repository.findAll();
+    public List<E> getAllActive() {
+        return repository.findByActiveTrue();
     }
 
-    @Override
-    public Optional<E> save(final E personal) {
-        return Optional.of(repository.save(personal));
+    public List<E> getAllInactive() {
+        return repository.findByActiveFalse();
+    }
+
+    public void saveAll(final Iterable<E> list) {
+        repository.saveAll(list);
+    }
+
+    protected Optional<E> save(
+            @NotNull final E e,
+            @NotNull final Consumer<E> successHandler,
+            @NotNull final Consumer<E> errorHandler
+    ) {
+        Objects.requireNonNull(e);
+        Objects.requireNonNull(successHandler);
+        Objects.requireNonNull(errorHandler);
+        try {
+            final E save = repository.save(e);
+            successHandler.accept(save);
+            return Optional.of(save);
+        } catch (final Exception ex) {
+            errorHandler.accept(e);
+        }
+        return Optional.empty();
     }
 }

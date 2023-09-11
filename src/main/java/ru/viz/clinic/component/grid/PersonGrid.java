@@ -11,18 +11,17 @@ public abstract class PersonGrid<T extends Personal> extends  RUDGrid<T> {
     public PersonGrid() {
         this.addColumn(Personal::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
         this.addColumn(Personal::getUsername).setHeader(HDR_USER).setAutoWidth(true);
-        this.addColumn(Personal::getFirstName).setHeader(HDR_FIRST_NAME).setAutoWidth(true);
-        this.addColumn(Personal::getLastName).setHeader(HDR_LAST_NAME).setAutoWidth(true);
-        this.addColumn(Personal::getPhone).setHeader(HDR_PHONE).setAutoWidth(true);
-        this.addColumn(Personal::getEmail).setHeader(HDR_MAIL).setAutoWidth(true);
-        this.addColumn(Personal::getBirthDate).setHeader(HDR_BIRTHDAY).setAutoWidth(true);
+        this.addColumn(Personal::getFirstName).setHeader(HDR_FIRST_NAME);
+        this.addColumn(Personal::getLastName).setHeader(HDR_LAST_NAME);
+        this.addColumn(Personal::getPhone).setHeader(HDR_PHONE);
+        this.addColumn(Personal::getEmail).setHeader(HDR_MAIL);
+        this.addColumn(Personal::getBirthDate).setHeader(HDR_BIRTHDAY);
         this.addColumn(person -> person.getGender() != null ? person.getGender().getGenderAsString() : Strings.EMPTY)
                 .setAutoWidth(true)
                 .setHeader(HDR_GENDER);
-        super.addRUDButtons();
+        super.addActionColumn();
         this.setAllRowsVisible(true);
         this.setSelectionMode(Grid.SelectionMode.NONE);
-        this.addClassName("primary");
     }
 
     public static class PersonFilter<T extends Personal> {

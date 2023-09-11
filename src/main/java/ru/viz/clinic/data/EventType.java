@@ -5,7 +5,7 @@ public enum EventType {
     UPDATE_ORDER("изменил"),
     ADOPT_ORDER("принял"),
     NOTE("прокомментировал"),
-    LIVE_ORDER("отказался"),
+    LIVE_ORDER("вернул"),
     FINISH_ORDER("закрыл");
     final String value;
 

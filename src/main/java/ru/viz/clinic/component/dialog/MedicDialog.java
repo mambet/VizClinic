@@ -8,7 +8,8 @@ import ru.viz.clinic.component.components.DepartmentSelect;
 import ru.viz.clinic.component.components.HospitalSelect;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Medic;
-import ru.viz.clinic.data.repository.MedicPersonalRepository;
+import ru.viz.clinic.repository.MedicRepository;
+import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.service.DepartmentService;
 import ru.viz.clinic.service.MedicService;
 
@@ -17,19 +18,61 @@ import java.util.Objects;
 
 import static ru.viz.clinic.help.Translator.DLH_CREATE_MEDIC;
 
-public class MedicDialog extends PersonalDialog<Medic, MedicPersonalRepository> {
-    private final DepartmentService departmentService;
-    private final DepartmentSelect departmentSelect = new DepartmentSelect();
+public class MedicDialog extends PersonalDialog<Medic, MedicRepository> {
+    protected  DepartmentService departmentService;
+    private final DepartmentSelect departmentSelect = DepartmentSelect.createDepartmentSelect();
 
-    public MedicDialog(
+    private MedicDialog(
+            @NotNull final Medic medic
+    ) {
+        super(Objects.requireNonNull(medic), DLH_CREATE_MEDIC);
+
+        binder.readBean(medic);
+    }
+
+    public static MedicDialog getUpdateDialog(
             @NotNull final Medic medic,
             @NotNull final Collection<Hospital> hospitals,
             @NotNull final DepartmentService departmentService
     ) {
-        super(Objects.requireNonNull(medic), DLH_CREATE_MEDIC);
-        this.departmentService = Objects.requireNonNull(departmentService);
+        final MedicDialog medicDialog = new MedicDialog(medic);
+        medicDialog.departmentService = Objects.requireNonNull(departmentService);
+        medicDialog.addHospitalSelect(hospitals);
+        medicDialog.addDepartmentSelect();
+        medicDialog.addPersonalFields();
+        medicDialog.binder.readBean(medic);
+        medicDialog.initUpdate();
+        return medicDialog;
+    }
 
-        final HospitalSelect hospitalSelect = new HospitalSelect(hospitals);
+    public static MedicDialog getCreateDialog(
+            @NotNull final Collection<Hospital> hospitals,
+            @NotNull final DepartmentService departmentService,
+            @NotNull final AuthenticationService authenticationService
+    ) {
+        final MedicDialog medicDialog = new MedicDialog(new Medic());
+        medicDialog.departmentService = Objects.requireNonNull(departmentService);
+        medicDialog.addAuthorisationFields(authenticationService);
+        medicDialog.addHospitalSelect(hospitals);
+        medicDialog.addDepartmentSelect();
+        medicDialog.addPersonalFields();
+        medicDialog.initCreate();
+        return medicDialog;
+    }
+
+    public static MedicDialog getUpdateAuthorityDialog(
+            @NotNull final Medic medic,
+            @NotNull final AuthenticationService authenticationService
+    ) {
+        final MedicDialog medicDialog = new MedicDialog(medic);
+        medicDialog.addAuthorisationFields(authenticationService);
+        medicDialog.binder.readBean(medic);
+        medicDialog.initUpdate();
+        return medicDialog;
+    }
+
+    private void addHospitalSelect(Collection<Hospital> hospitals) {
+        final HospitalSelect hospitalSelect = HospitalSelect.createHospitalSelect(hospitals);
         hospitalSelect.addValueChangeListener(this::hospitalSelectListener);
 
         binder.forField(hospitalSelect)
@@ -42,36 +85,20 @@ public class MedicDialog extends PersonalDialog<Medic, MedicPersonalRepository> 
                 }, (m, d) -> {
                 });
 
+        formLayout.add(hospitalSelect);
+    }
+
+    private void addDepartmentSelect() {
         binder.forField(departmentSelect)
                 .asRequired()
                 .bind(Medic::getDepartment, Medic::setDepartment);
-
-        formLayout.addComponentAtIndex(0, hospitalSelect);
-        formLayout.addComponentAtIndex(1, departmentSelect);
-
-        binder.readBean(medic);
-    }
-
-    public MedicDialog(
-            @NotNull final MedicService medicService,
-            @NotNull final Collection<Hospital> hospitals,
-            @NotNull final DepartmentService departmentService
-    ) {
-        this(new Medic(), hospitals, departmentService);
-        super.addAuthorisationFields(medicService);
+        formLayout.add(departmentSelect);
     }
 
     private void hospitalSelectListener(final AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {
         final Long hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
-        departmentSelect.setItems(departmentService.getByHospital(hospitalId));
-    }
-
-    @Override
-    protected void handleConfirm() {
-        if (createAuthority) {
-            fireEvent(new CreateMedicPersonalEvent(this, Objects.requireNonNull(item)));
-        } else {
-            fireEvent(new UpdateMedicPersonalEvent(this, Objects.requireNonNull(item)));
+        if (departmentSelect != null) {
+            departmentSelect.setItems(departmentService.getActiveByHospitalId(hospitalId));
         }
     }
 
@@ -86,12 +113,22 @@ public class MedicDialog extends PersonalDialog<Medic, MedicPersonalRepository> 
     }
 
     @Getter
-    public static class UpdateMedicPersonalEvent extends AbstractDialogEvent<MedicDialog, Medic> {
-        public UpdateMedicPersonalEvent(
+    public static class UpdateMedicEvent extends AbstractDialogEvent<MedicDialog, Medic> {
+        public UpdateMedicEvent(
                 final MedicDialog source,
                 final Medic medic
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(medic));
         }
+    }
+
+    @Override
+    protected void handleCreate() {
+        fireEvent(new CreateMedicPersonalEvent(this, Objects.requireNonNull(item)));
+    }
+
+    @Override
+    protected void handleUpdate() {
+        fireEvent(new UpdateMedicEvent(this, Objects.requireNonNull(item)));
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.viz.clinic.data.EventType;
+import ru.viz.clinic.help.Translator;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,9 @@ public class Record extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "medic_id")
     private Medic medic;
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
     @Column(name = "comment", length = 1000)
     private String comment;
     @CreationTimestamp
@@ -32,5 +36,14 @@ public class Record extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
-}
 
+    @Override
+    public String getEntityDesignation() {
+        return Translator.ENTITY_NAME_RECORD;
+    }
+
+    @Override
+    public String getEntityName() {
+        return String.valueOf(id);
+    }
+}

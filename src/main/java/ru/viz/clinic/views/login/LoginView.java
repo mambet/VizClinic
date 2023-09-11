@@ -10,6 +10,7 @@ import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import ru.viz.clinic.security.AuthenticationService;
 
 import java.util.Objects;
@@ -19,10 +20,12 @@ import static ru.viz.clinic.help.Translator.*;
 @AnonymousAllowed
 @PageTitle(PTT_LOGIN)
 @Route(value = "login")
+@Slf4j
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
     private final AuthenticationService authenticationService;
 
     public LoginView(@NotNull final AuthenticationService authenticationService) {
+        log.debug("LoginView in");
         this.authenticationService = Objects.requireNonNull(authenticationService);
 
         setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));

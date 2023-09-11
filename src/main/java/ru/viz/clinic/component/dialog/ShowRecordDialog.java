@@ -16,6 +16,6 @@ public class ShowRecordDialog extends ConfirmDialog {
     public ShowRecordDialog(@NotNull final Set<Record> records) {
         this.setConfirmText(BTN_CANCEL);
         this.setWidth(WIDTH, Unit.PIXELS);
-        this.add(new RecordGrid(records));
+        this.add(RecordGrid.createRecordGrid(records));
     }
 }

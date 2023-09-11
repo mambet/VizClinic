@@ -2,15 +2,15 @@ package ru.viz.clinic.component.dialog;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import ru.viz.clinic.data.entity.Order;
 
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
-import static ru.viz.clinic.help.Translator.*;
+import static ru.viz.clinic.help.Translator.BTN_LEAVE_ORDER;
+import static ru.viz.clinic.help.Translator.DLH_LEAVE_ORDER;
 
-@Log4j2
+@Slf4j
 public class LeaveRecordDialog extends RecordDialog {
     public LeaveRecordDialog(
             @NotNull final Order order

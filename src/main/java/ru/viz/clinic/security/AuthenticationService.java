@@ -15,12 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.data.Role;
-import ru.viz.clinic.help.Helper;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,7 +41,6 @@ public class AuthenticationService {
         this.passwordEncoder = Objects.requireNonNull(passwordEncoder);
     }
 
-    @Transactional
     public Optional<UserDetails> getUserDetails() {
         return authenticationContext.getAuthenticatedUser(UserDetails.class);
     }
@@ -66,18 +62,14 @@ public class AuthenticationService {
     ) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(pass);
-        try {
-            final UserDetails userDetails = User.builder()
-                    .disabled(false)
-                    .password(passwordEncoder.encode(pass))
-                    .username(user)
-                    .authorities(new SimpleGrantedAuthority(Role.TEMP.getAuthority()))
-                    .build();
-            jdbcUserDetailsManager.createUser(userDetails);
-        } catch (final Exception e) {
-            log.error("error ", e);
-            Helper.showErrorNotification("ошибка при создании пользователя");
-        }
+
+        final UserDetails userDetails = User.builder()
+                .disabled(false)
+                .password(passwordEncoder.encode(pass))
+                .username(user)
+                .authorities(new SimpleGrantedAuthority(Role.TEMP.getAuthority()))
+                .build();
+        jdbcUserDetailsManager.createUser(userDetails);
     }
 
     public void authenticate(
@@ -97,34 +89,6 @@ public class AuthenticationService {
                 UsernamePasswordAuthenticationToken.unauthenticated(username, password));
     }
 
-    public List<GrantedAuthority> getAuthorities(@NotNull final Set<Role> roles) {
-        Objects.requireNonNull(roles);
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority()))
-                .collect(Collectors.toList());
-    }
-
-    public Optional<Role> getLoggedUserRole() {
-        return getLoggedUserAuthority()
-                .stream()
-                .map(Role::authorityToRole)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
-    }
-
-    public Set<String> getLoggedUserAuthority() {
-        final AtomicReference<Set<String>> atomicReference = new AtomicReference<>(new HashSet<>());
-        getUserDetails().ifPresent(userDetails ->
-                atomicReference.set(userDetails
-                        .getAuthorities()
-                        .stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toSet()))
-        );
-        return atomicReference.get();
-    }
-
-    @Transactional
     public void updatePassAndRole(
             @NotNull final String username,
             @NotNull final Set<Role> roles,
@@ -149,7 +113,21 @@ public class AuthenticationService {
 
             authenticate(username, newPass);
         }, () -> {
-            throw new RuntimeException("No person");
+            throw new RuntimeException("No logged person");
         });
+    }
+
+    public void deleteUser(@NotNull final String username) {
+        jdbcUserDetailsManager.deleteUser(username);
+    }
+
+    public boolean userExist(@NotNull final String username) {
+        return jdbcUserDetailsManager.userExists(Objects.requireNonNull(username));
+    }
+
+    private List<GrantedAuthority> getAuthorities(@NotNull final Set<Role> roles) {
+        Objects.requireNonNull(roles);
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
     }
 }

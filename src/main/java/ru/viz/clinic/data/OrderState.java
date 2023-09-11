@@ -1,5 +1,7 @@
 package ru.viz.clinic.data;
 
+import jakarta.validation.constraints.NotNull;
+
 public enum OrderState {
     READY("В очереди"), WORKING("В роботе"), DONE("Закончен");
 

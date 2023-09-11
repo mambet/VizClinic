@@ -18,6 +18,7 @@ import static ru.viz.clinic.help.Translator.*;
 
 public abstract class VizConfirmDialog<T> extends ConfirmDialog {
     private final Button btnConfirm = new Button();
+
     protected final Binder<T> binder = new Binder<>();
     protected final T item;
 
@@ -28,13 +29,21 @@ public abstract class VizConfirmDialog<T> extends ConfirmDialog {
     ) {
         this.item = Objects.requireNonNull(item);
         setHeader(Objects.requireNonNull(header));
-        setConfirmButton(btnConfirm);
         setCancelable(true);
-        addConfirmListener(this::confirmListener);
-        setConfirmText(BTN_CONFIRM_CREATE);
+        setConfirmButton(btnConfirm);
         setCancelText(BTN_CANCEL);
         this.binder.addValueChangeListener(this::valueChanges);
         setBtnConfirmEnable(false);
+    }
+
+    protected void initCreate() {
+        addConfirmListener(this::createListener);
+        setConfirmText(BTN_CONFIRM_CREATE);
+    }
+
+    protected void initUpdate() {
+        addConfirmListener(this::updateListener);
+        setConfirmText(BTN_CONFIRM_UPDATE);
     }
 
     private void valueChanges(final HasValue.ValueChangeEvent<?> valueChangeEvent) {
@@ -71,15 +80,30 @@ public abstract class VizConfirmDialog<T> extends ConfirmDialog {
         }
     }
 
-    void confirmListener(final ConfirmEvent confirmEvent) {
-        if (binder.isValid()) {
-            binder.writeBeanIfValid(Objects.requireNonNull(item));
-            handleConfirm();
-            this.close();
-        } else {
-            Helper.showErrorNotification(ERR_MSG_INVALID_DATA);
+    void createListener(final ConfirmEvent confirmEvent) {
+        if (writeBinder()) {
+            handleCreate();
         }
     }
 
-    protected abstract void handleConfirm();
+    void updateListener(final ConfirmEvent confirmEvent) {
+        if (writeBinder()) {
+            handleUpdate();
+        }
+    }
+
+    private boolean writeBinder() {
+        if (binder.isValid()) {
+            binder.writeBeanIfValid(Objects.requireNonNull(item));
+            this.close();
+            return true;
+        } else {
+            Helper.showErrorNotification(ERR_MSG_INVALID_DATA);
+            return false;
+        }
+    }
+
+    protected abstract void handleCreate();
+
+    protected abstract void handleUpdate();
 }

@@ -9,6 +9,8 @@ html {
   --lumo-primary-color-50pct: hsla(265, 90%, 52%, 0.5);
   --lumo-primary-color-10pct: hsla(265, 90%, 52%, 0.1);
   --viz-background-primary: #1b2635;
+  --viz-text-color-inactive: #585858;
+  --viz-text-color-active: #AAAAAA;
 }
 
 vaadin-grid::part(done) {
@@ -23,6 +25,19 @@ vaadin-grid::part(working) {
     background-color: #645d1e;
 }
 
+vaadin-grid::part(active) {
+    background: var(--viz-background-primary);
+}
+
+vaadin-grid::part(inactive) {
+    background: var(--viz-background-primary);
+    color: var(--viz-text-color-inactive);
+}
+
+vaadin-grid::part(order-inactive) {
+    color: var(--viz-text-color-inactive);
+}
+
 vaadin-grid::part(font-weight-bold) {
     font-weight: bold;
 }
@@ -33,10 +48,16 @@ vaadin-grid::part(font-weight-bold) {
   border-radius: 7px;
 }
 
+vaadin-grid.select::part(selected-row-cell){
+    background: var(--lumo-primary-color-10pct);
+}
 vaadin-grid.primary::part(cell){
   background: var(--viz-background-primary);
 }
 
-vaadin-grid.select::part(selected-row-cell){
-    background: var(--lumo-primary-color-10pct);
+.inactive {
+  color: var(--viz-text-color-inactive);;
+}
+.active{
+  color: var(--viz-text-color-active);
 }

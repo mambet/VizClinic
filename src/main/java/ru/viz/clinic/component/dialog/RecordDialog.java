@@ -7,6 +7,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public abstract class RecordDialog extends ConfirmDialog {
         this.setCancelable(true);
         this.setCancelText(BTN_CANCEL);
 
+        commentTextArea.setValueChangeMode(ValueChangeMode.EAGER);
         commentTextArea.setRequired(true);
         commentTextArea.setClearButtonVisible(true);
         commentTextArea.addValueChangeListener(this::valuesChanges);

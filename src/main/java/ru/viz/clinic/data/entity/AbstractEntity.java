@@ -1,9 +1,17 @@
 package ru.viz.clinic.data.entity;
 
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 
+@Setter
+@Getter
+@MappedSuperclass
 public abstract class AbstractEntity {
-    protected abstract Long getId();
+    boolean active = true;
+    public abstract Long getId();
 
     @Override
     public boolean equals(final Object o) {
@@ -21,4 +29,8 @@ public abstract class AbstractEntity {
     public int hashCode() {
         return Objects.hash(getId());
     }
+
+    public abstract String getEntityDesignation();
+
+    public abstract String getEntityName();
 }

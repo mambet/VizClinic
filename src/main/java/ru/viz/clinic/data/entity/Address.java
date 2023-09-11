@@ -1,11 +1,10 @@
 package ru.viz.clinic.data.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import ru.viz.clinic.help.Translator;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -21,4 +20,14 @@ public class Address extends AbstractEntity {
     private String city;
     private Integer postalCode;
     private String region;
+
+    @Override
+    public String getEntityDesignation() {
+        return Translator.ENTITY_NAME_ADDRESS;
+    }
+
+    @Override
+    public String getEntityName() {
+        return toString();
+    }
 }

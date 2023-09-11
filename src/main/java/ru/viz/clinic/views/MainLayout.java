@@ -31,10 +31,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.views.medic.MedicEquipmentView;
-import ru.viz.clinic.views.order.EngineerOrderView;
+import ru.viz.clinic.views.engineer.EngineerOrderView;
 import ru.viz.clinic.views.admin.AdminView;
-import ru.viz.clinic.views.order.MedicOrderView;
-import ru.viz.clinic.views.order.AdminOrderView;
+import ru.viz.clinic.views.medic.MedicOrderView;
+import ru.viz.clinic.views.admin.AdminOrderView;
 
 import static ru.viz.clinic.help.Translator.*;
 

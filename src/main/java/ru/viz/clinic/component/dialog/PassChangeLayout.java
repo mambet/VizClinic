@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -67,6 +68,9 @@ public class PassChangeLayout extends VerticalLayout {
 
         newPasswordField.addValueChangeListener(this::validateRepeat);
         newPasswordFieldRepeat.addValueChangeListener(this::validateNew);
+
+        newPasswordField.setValueChangeMode(ValueChangeMode.EAGER);
+        newPasswordFieldRepeat.setValueChangeMode(ValueChangeMode.EAGER);
     }
 
     private void validateNew(final AbstractField.ComponentValueChangeEvent<PasswordField, String> passwordFieldStringComponentValueChangeEvent) {

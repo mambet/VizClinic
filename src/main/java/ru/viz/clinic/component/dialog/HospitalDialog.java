@@ -15,7 +15,10 @@ import java.util.Objects;
 import static ru.viz.clinic.help.Translator.*;
 
 public class HospitalDialog extends VizConfirmDialog<Hospital> {
-    private HospitalDialog(@NotNull final Hospital hospital, @NotNull final String header) {
+    private HospitalDialog(
+            @NotNull final Hospital hospital,
+            @NotNull final String header
+    ) {
         super(header, hospital);
 
         final TextField hospitalName = new TextField(LBL_HOSPITAL_NAME);
@@ -31,6 +34,8 @@ public class HospitalDialog extends VizConfirmDialog<Hospital> {
         regionField.setValueChangeMode(ValueChangeMode.EAGER);
 
         this.add(new FormLayout(hospitalName, regionField, postalCodeField, cityField, streetField));
+
+        hospitalName.setValueChangeMode(ValueChangeMode.EAGER);
 
         binder.forField(hospitalName).asRequired().bind(Hospital::getName, Hospital::setName);
         binder.forField(streetField)
@@ -69,17 +74,36 @@ public class HospitalDialog extends VizConfirmDialog<Hospital> {
         binder.readBean(hospital);
     }
 
-    public HospitalDialog(@NotNull final Hospital hospital) {
-        this(hospital, DLH_UPDATE_HOSPITAL);
+    public static HospitalDialog getUpdateDialog(@NotNull final Hospital hospital) {
+        final HospitalDialog hospitalDialog = new HospitalDialog(hospital, DLH_UPDATE_HOSPITAL);
+        hospitalDialog.initUpdate();
+        return hospitalDialog;
     }
 
-    public HospitalDialog() {
-        this(new Hospital(), DLH_CREATE_HOSPITAL);
+    public static HospitalDialog getCreateDialog() {
+        final HospitalDialog hospitalDialog = new HospitalDialog(new Hospital(), DLH_CREATE_HOSPITAL);
+        hospitalDialog.initCreate();
+        return hospitalDialog;
     }
 
     @Override
-    protected void handleConfirm() {
+    protected void handleCreate() {
+        fireEvent(new CreateHospitalDialogEvent(this, Objects.requireNonNull(item)));
+    }
+
+    @Override
+    protected void handleUpdate() {
         fireEvent(new UpdateHospitalDialogEvent(this, Objects.requireNonNull(item)));
+    }
+
+    @Getter
+    public static class CreateHospitalDialogEvent extends AbstractDialogEvent<HospitalDialog, Hospital> {
+        public CreateHospitalDialogEvent(
+                @NotNull final HospitalDialog source,
+                @NotNull final Hospital hospital
+        ) {
+            super(Objects.requireNonNull(source), Objects.requireNonNull(hospital));
+        }
     }
 
     @Getter

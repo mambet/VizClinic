@@ -1,21 +1,24 @@
 package ru.viz.clinic.component.dialog;
 
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import ru.viz.clinic.component.components.EquipmentSelect;
+import ru.viz.clinic.converter.EntityToStringConverter;
 import ru.viz.clinic.data.entity.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
 import static ru.viz.clinic.help.Translator.*;
 
 public class OrderDialog extends VizConfirmDialog<Order> {
-    final Select<Equipment> equipmentSelect = new Select<>();
+    final EquipmentSelect equipmentSelect = EquipmentSelect.createDepartmentSelect();
     final MultiSelectComboBox<Engineer> engineerSelect = new MultiSelectComboBox<>();
 
     private OrderDialog(
@@ -29,14 +32,12 @@ public class OrderDialog extends VizConfirmDialog<Order> {
         Objects.requireNonNull(engineers);
 
         engineerSelect.setLabel(LBL_ENGINEER);
-        engineerSelect.setItemLabelGenerator(engineer -> engineer.getFirstName() + " " + engineer.getLastName());
+        engineerSelect.setItemLabelGenerator(EntityToStringConverter::convertToPresentation);
         engineerSelect.setItems(engineers);
-
-        equipmentSelect.setLabel(HDR_EQUIPMENT);
-        equipmentSelect.setItemLabelGenerator(Equipment::getName);
         equipmentSelect.setItems(equipments);
 
         final TextArea description = new TextArea(LBL_EQUIPMENT_DESCRIPTION);
+        description.setValueChangeMode(ValueChangeMode.EAGER);
 
         binder.forField(equipmentSelect)
                 .asRequired()
@@ -49,28 +50,55 @@ public class OrderDialog extends VizConfirmDialog<Order> {
         this.add(new FormLayout(equipmentSelect, engineerSelect, description));
     }
 
-    public OrderDialog(
+    public static OrderDialog getCreateDialog(
             @NotNull final Collection<Engineer> engineers,
             @NotNull final Collection<Equipment> equipment,
-            @NotNull final Order order
-
+            @NotNull final Medic medic
     ) {
-        this(order, engineers, equipment);
+        final OrderDialog orderDialog = new OrderDialog(Order.builder()
+                .medic(Objects.requireNonNull(medic))
+                .build(), engineers, equipment);
+        orderDialog.initCreate();
+        return orderDialog;
+    }
+
+    public static OrderDialog getUpdateDialog(
+            @NotNull final Order order,
+            @NotNull final Collection<Engineer> engineers,
+            @NotNull final Collection<Equipment> equipment
+    ) {
+        final OrderDialog orderDialog = new OrderDialog(order, engineers, equipment);
+        orderDialog.initUpdate();
+        return orderDialog;
     }
 
     @Override
-    protected void handleConfirm() {
-        fireEvent(new UpdateOrder(this, Objects.requireNonNull(item)));
+    protected void handleCreate() {
+        fireEvent(new CreateOrderEvent(this, Objects.requireNonNull(item)));
+    }
+
+    @Override
+    protected void handleUpdate() {
+        fireEvent(new UpdateOrderEvent(this, Objects.requireNonNull(item)));
     }
 
     @Getter
-    public static class UpdateOrder extends AbstractDialogEvent<OrderDialog, Order> {
-        public UpdateOrder(
+    public static class CreateOrderEvent extends AbstractDialogEvent<OrderDialog, Order> {
+        public CreateOrderEvent(
                 @NotNull final OrderDialog source,
                 @NotNull final Order order
         ) {
             super(Objects.requireNonNull(source), Objects.requireNonNull(order));
+        }
+    }
 
+    @Getter
+    public static class UpdateOrderEvent extends AbstractDialogEvent<OrderDialog, Order> {
+        public UpdateOrderEvent(
+                @NotNull final OrderDialog source,
+                @NotNull final Order order
+        ) {
+            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
         }
     }
 }

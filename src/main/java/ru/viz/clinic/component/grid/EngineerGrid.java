@@ -2,6 +2,7 @@ package ru.viz.clinic.component.grid;
 
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.model.HospitalGridFilterUpdater;
@@ -13,8 +14,12 @@ import static ru.viz.clinic.help.Translator.HDR_HOSPITAL;
 public class EngineerGrid extends PersonGrid<Engineer> implements HospitalGridFilterUpdater {
     public EngineerPersonFilter engineerPersonFilter;
 
-    public EngineerGrid() {
+    private EngineerGrid() {
         createTable();
+    }
+
+    public static EngineerGrid createEngineerGrid() {
+        return new EngineerGrid();
     }
 
     @Override
@@ -31,28 +36,34 @@ public class EngineerGrid extends PersonGrid<Engineer> implements HospitalGridFi
 
     private void createTable() {
         final List<Column<Engineer>> columns = new ArrayList<>(this.getColumns());
-        final Column<Engineer> hospitalColumn = this.addColumn(
-                        engineerPersonal -> engineerPersonal.getHospital().getName())
+        final Column<Engineer> hospitalColumn = this.addColumn(getStyled(Engineer::getHospital))
                 .setAutoWidth(true)
                 .setResizable(true)
                 .setHeader(HDR_HOSPITAL);
         columns.add(1, hospitalColumn);
         this.setColumnOrder(columns);
-        this.addClassName("select");
     }
 
     @Override
     protected void updateEntity(final Engineer engineer) {
-        fireEvent(new UpdateEngineerGridEvent(this, engineer));
+        fireEvent(new UpdateGridEvent(this, engineer));
     }
 
     @Override
     protected void deleteEntity(final Engineer engineer) {
-        fireEvent(new DeleteEngineerGridEvent(this, engineer));
+        fireEvent(new DeleteGridEvent(this, engineer));
     }
 
-    public static class DeleteEngineerGridEvent extends AbstractGridEvent<EngineerGrid, Engineer> {
-        protected DeleteEngineerGridEvent(
+    @Override
+    protected void setEntityActive(
+            @NotNull final Engineer engineer,
+            final boolean active
+    ) {
+        fireEvent(new SetActiveGridEvent(this, engineer, active));
+    }
+
+    public static class DeleteGridEvent extends AbstractGridEvent<EngineerGrid, Engineer> {
+        protected DeleteGridEvent(
                 @NotNull final EngineerGrid source,
                 @NotNull final Engineer entity
         ) {
@@ -60,12 +71,26 @@ public class EngineerGrid extends PersonGrid<Engineer> implements HospitalGridFi
         }
     }
 
-    public static class UpdateEngineerGridEvent extends AbstractGridEvent<EngineerGrid, Engineer> {
-        protected UpdateEngineerGridEvent(
+    public static class UpdateGridEvent extends AbstractGridEvent<EngineerGrid, Engineer> {
+        protected UpdateGridEvent(
                 @NotNull final EngineerGrid source,
                 @NotNull final Engineer entity
         ) {
             super(source, entity);
+        }
+    }
+
+    @Getter
+    public static class SetActiveGridEvent extends AbstractGridEvent<EngineerGrid, Engineer> {
+        boolean active;
+
+        protected SetActiveGridEvent(
+                @NotNull final EngineerGrid source,
+                @NotNull final Engineer entity,
+                final boolean active
+        ) {
+            super(source, entity);
+            this.active = active;
         }
     }
 

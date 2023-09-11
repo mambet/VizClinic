@@ -1,6 +1,7 @@
 package ru.viz.clinic.component.grid;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -8,93 +9,78 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import ru.viz.clinic.data.OrderState;
-import ru.viz.clinic.data.entity.Engineer;
-import ru.viz.clinic.data.entity.Order;
+import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.service.RecordService;
 
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ru.viz.clinic.help.Translator.*;
 
 public class EngineerOrderGrid extends OrderGrid {
     private final Engineer engineer;
 
-    public EngineerOrderGrid(
+    private EngineerOrderGrid(
             @NotNull final Engineer engineer,
             @NotNull final RecordService recordService
     ) {
         super(Objects.requireNonNull(recordService));
         this.engineer = Objects.requireNonNull(engineer);
-        addButton();
     }
 
-    public void addButton() {
-        this.addColumn(new ComponentRenderer<>(HorizontalLayout::new, (layout, order) -> {
-            if (order.getDestinationEngineers().contains(engineer)
-                    && order.getOrderState().equals(OrderState.READY)) {
-                layout.add(adoptOrderButton(order));
-            }
-            if (order.getOwnerEngineer() != null
-                    && order.getOwnerEngineer().equals(engineer)
-                    && order.getOrderState().equals(OrderState.WORKING)) {
-                layout.add(commentOrderButton(order), leaveOrderButton(order));
-            }
-            layout.add(showRecords(order));
-        })).setAutoWidth(true);
+    public static EngineerOrderGrid createEngineerOrderGrid(
+            @NotNull final Engineer engineer,
+            @NotNull final RecordService recordService
+    ) {
+        final EngineerOrderGrid engineerOrderGrid = new EngineerOrderGrid(engineer, recordService);
+        engineerOrderGrid.addDepartmentColumn(1);
+        engineerOrderGrid.addEquipmentColumn(2);
+        return engineerOrderGrid;
     }
 
-    //for Engineer
-    private Button adoptOrderButton(@NotNull final Order order) {
-        Objects.requireNonNull(order);
-        final Button button = new Button(new Icon(VaadinIcon.SCREWDRIVER), e -> fireEvent(new AdoptGridEvent(this,
-                Objects.requireNonNull(order))));
-        button.setTooltipText(TTP_ADOPT_ORDER);
-        return button;
+    private void setItemsAtFilter(
+            @NotNull final GridListDataView<Order> orderGridListDataView,
+            @NotNull final Set<Department> departmentSet,
+            @NotNull final Set<Equipment> equipmentSet
+    ) {
+        getOrderFilter().setDataView(orderGridListDataView);
+        getDepartmentSelect().setItems(departmentSet);
+
+        getDepartmentSelect().addValueChangeListener(changeEvent -> {
+            final Set<Equipment> equipmentSetByDepartment = equipmentSet.stream()
+                    .filter(equipment -> equipment.getDepartment().equals(changeEvent.getValue()))
+                    .collect(Collectors.toSet());
+            getEquipmentSelect().setItems(equipmentSetByDepartment);
+        });
     }
 
-    //for Engineer
-    private Button leaveOrderButton(@NotNull final Order order) {
-        final Button button = new Button(new Icon(VaadinIcon.EXIT_O), e -> fireEvent(new LeaveGridEvent(this,
-                Objects.requireNonNull(order))));
-        button.setTooltipText(TTP_LEAVE_ORDER);
-        return button;
+    @Override
+    protected void updateFilter(
+            @NotNull final Collection<Order> items,
+            @NotNull final GridListDataView<Order> orderGridListDataView
+    ) {
+        final Set<Department> departmentSet = items.stream()
+                .map(order -> order.getEquipment().getDepartment()).collect(Collectors.toSet());
+        final Set<Equipment> equipmentSet = items.stream()
+                .map(Order::getEquipment).collect(Collectors.toSet());
+
+        setItemsAtFilter(orderGridListDataView, departmentSet, equipmentSet);
     }
 
-    //for Engineer
-    private Button commentOrderButton(@NotNull final Order order) {
-        final Button button = new Button(new Icon(VaadinIcon.COMMENT_O), e -> fireEvent(new CommentGridEvent(this,
-                Objects.requireNonNull(order))));
-        button.setTooltipText(TTP_COMMENT_ORDER);
-        return button;
-    }
-
-    public static class AdoptGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
-        public AdoptGridEvent(
-                @NotNull final EngineerOrderGrid source,
-                @NotNull final Order order
-        ) {
-            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
+    @Override
+    protected void addCustomButton(
+            @NotNull final HorizontalLayout layout,
+            @NotNull final Order order
+    ) {
+        if (order.getOrderState().equals(OrderState.READY)
+                && (order.getDestinationEngineers().isEmpty() || order.getDestinationEngineers().contains(engineer))) {
+            layout.add(adoptOrderButton(order));
         }
-    }
-
-    @Getter
-    public static class CommentGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
-        public CommentGridEvent(
-                @NotNull final EngineerOrderGrid source,
-                @NotNull final Order order
-        ) {
-            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
-        }
-    }
-
-    @Getter
-    public static class LeaveGridEvent extends AbstractGridEvent<EngineerOrderGrid, Order> {
-        public LeaveGridEvent(
-                @NotNull final EngineerOrderGrid source,
-                @NotNull final Order order
-
-        ) {
-            super(Objects.requireNonNull(source), Objects.requireNonNull(order));
+        if (order.getOwnerEngineer() != null && order.getOwnerEngineer().equals(engineer)
+                && order.getOrderState().equals(OrderState.WORKING)) {
+            layout.add(commentOrderButton(order), leaveOrderButton(order));
         }
     }
 }

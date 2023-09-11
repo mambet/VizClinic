@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.Gender;
 import ru.viz.clinic.data.entity.Personal;
-import ru.viz.clinic.data.repository.CommonRepository;
-import ru.viz.clinic.service.AbstractService;
+import ru.viz.clinic.repository.CommonPersonalRepository;
+import ru.viz.clinic.security.AuthenticationService;
 import ru.viz.clinic.validator.PhoneValidator;
 
 import java.time.LocalDate;
@@ -22,17 +22,19 @@ import java.util.Objects;
 
 import static ru.viz.clinic.help.Translator.*;
 
-public abstract class PersonalDialog<P extends Personal, R extends CommonRepository<P>> extends VizConfirmDialog<P> {
+public abstract class PersonalDialog<P extends Personal, R extends CommonPersonalRepository<P>> extends VizConfirmDialog<P> {
     public static final int WORD_LENGTH = 4;
     protected final FormLayout formLayout = new FormLayout();
-    protected boolean createAuthority;
 
     public PersonalDialog(
             @NotNull final P personal,
             @NotNull final String title
     ) {
         super(Objects.requireNonNull(title), personal);
+        this.add(formLayout);
+    }
 
+    protected void addPersonalFields() {
         final RadioButtonGroup<Gender> genderField = new RadioButtonGroup<>(LBL_GENDER);
         final TextField firstNameField = new TextField(LBL_FIRST_NAME);
         final TextField lastNameField = new TextField(LBL_LAST_NAME);
@@ -40,8 +42,11 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonReposit
         final TextField phoneField = new TextField(LBL_PHONE);
         final TextField emailField = new TextField(LBL_EMAIL);
 
+        firstNameField.setValueChangeMode(ValueChangeMode.EAGER);
+        lastNameField.setValueChangeMode(ValueChangeMode.EAGER);
         emailField.setValueChangeMode(ValueChangeMode.EAGER);
         phoneField.setValueChangeMode(ValueChangeMode.EAGER);
+        emailField.setValueChangeMode(ValueChangeMode.EAGER);
 
         genderField.setItems(Gender.values());
         genderField.setItemLabelGenerator(value -> {
@@ -66,31 +71,29 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonReposit
                 .bind(Personal::getEmail, Personal::setEmail);
 
         formLayout.add(firstNameField, lastNameField, birthDateField, genderField, emailField, phoneField);
-        this.add(formLayout);
     }
 
-    protected void addAuthorisationFields(final AbstractService<P, R> abstractService) {
-        this.createAuthority = true;
-
+    protected void addAuthorisationFields(final AuthenticationService authenticationService) {
         final TextField usernameField = new TextField(LBL_USER);
         final PasswordField passwordField = new PasswordField(LBL_PASSWORD);
-
-        formLayout.addComponentAtIndex(0, usernameField);
-        formLayout.addComponentAtIndex(1, passwordField);
 
         passwordField.setValueChangeMode(ValueChangeMode.EAGER);
         usernameField.setValueChangeMode(ValueChangeMode.EAGER);
 
         binder.forField(usernameField)
                 .asRequired()
-                .withValidator(s -> abstractService.findByUsername(s).isEmpty(), ERR_MSG_USER_NAME_BUSY,
+                .withValidator(username -> !authenticationService.userExist(username),
+                        ERR_MSG_USER_NAME_BUSY,
                         ErrorLevel.ERROR)
-                .withValidator(s -> s.length() >= WORD_LENGTH, ERR_MSG_USER_NAME_IS_SHORT, ErrorLevel.WARNING)
-                .bind(p -> Strings.EMPTY, Personal::setUsername);
+                .withValidator(s -> s.length() >= WORD_LENGTH, ERR_MSG_USER_NAME_IS_SHORT, ErrorLevel.ERROR)
+                .bind(Personal::getUsername, Personal::setUsername);
 
         binder.forField(passwordField)
                 .asRequired()
-                .withValidator(s -> s.length() >= WORD_LENGTH, ERR_MSG_PASS_NAME_IS_SHORT, ErrorLevel.WARNING)
-                .bind(p -> Strings.EMPTY, Personal::setTempPass);
+                .withValidator(password -> password.length() >= WORD_LENGTH, ERR_MSG_PASS_NAME_IS_SHORT,
+                        ErrorLevel.ERROR)
+                .bind( Personal::getTempPass, Personal::setTempPass);
+
+        formLayout.add(usernameField, passwordField);
     }
 }

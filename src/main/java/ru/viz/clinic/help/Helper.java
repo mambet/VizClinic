@@ -13,11 +13,14 @@ import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import jakarta.validation.constraints.NotNull;
-import ru.viz.clinic.data.entity.Order;
+import ru.viz.clinic.data.entity.AbstractEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Objects;
+
+import static ru.viz.clinic.converter.EntityToStringConverter.convertToPresentation;
 
 public class Helper {
     public static void showErrorNotification(@NotNull final String message) {
@@ -58,5 +61,34 @@ public class Helper {
 
     public static <T> LocalDateRenderer<T> getDateRenderer(@NotNull final ValueProvider<T, LocalDate> getTime) {
         return new LocalDateRenderer<>(getTime, "dd.MM.yyyy");
+    }
+
+    public static void formatAndShowErrorMessage(
+            @NotNull final String message,
+            @NotNull final Collection<? extends AbstractEntity> entities
+    ) {
+        showErrorNotification(String.format(message, convertToPresentation(entities)));
+    }
+
+    public static <T extends AbstractEntity> void formatAndShowErrorMessage(
+            @NotNull final String message,
+            @NotNull final T entity
+    ) {
+        showErrorNotification(String.format(message, entity.getEntityName()));
+    }
+
+    public static void formatAndShowSuccessMessage(
+            @NotNull final String message,
+            @NotNull final Collection<? extends AbstractEntity> entities
+    ) {
+        showSuccessNotification(String.format(message, convertToPresentation(entities)));
+    }
+
+
+    public static <T extends AbstractEntity> void formatAndShowSuccessMessage(
+            @NotNull final String message,
+            @NotNull final T entity
+    ) {
+        showSuccessNotification(String.format(message, entity.getEntityName()));
     }
 }

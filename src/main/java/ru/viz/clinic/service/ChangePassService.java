@@ -4,9 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.component.dialog.PassChangeLayout;
 import ru.viz.clinic.data.Role;
+import ru.viz.clinic.data.entity.Admin;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Medic;
 import ru.viz.clinic.help.Helper;
@@ -15,30 +15,31 @@ import ru.viz.clinic.security.AuthenticationService;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static ru.viz.clinic.help.Translator.ERR_AUTHENTICATION;
 import static ru.viz.clinic.help.Translator.ERR_BAD_CREDENTIALS;
 
 @Service
 @Slf4j
-public class PersonalService {
+public class ChangePassService {
     private final MedicService medicService;
     private final EngineerService engineerService;
+    private final AdministratorService administratorService;
     private final AuthenticationService authenticationService;
 
-    public PersonalService(
+    public ChangePassService(
             @NotNull final MedicService medicService,
             @NotNull final EngineerService engineerService,
+            @NotNull final AdministratorService administratorService,
             @NotNull final AuthenticationService authenticationService
 
     ) {
         this.medicService = Objects.requireNonNull(medicService);
         this.engineerService = Objects.requireNonNull(engineerService);
+        this.administratorService = Objects.requireNonNull(administratorService);
         this.authenticationService = Objects.requireNonNull(authenticationService);
     }
 
-    @Transactional
     public Optional<Role> updatePassAndRole(@NotNull final PassChangeLayout.PassDTO passDTO) {
         Objects.requireNonNull(passDTO);
         final String currentPass = Objects.requireNonNull(passDTO.getOldPass());
@@ -47,8 +48,9 @@ public class PersonalService {
         Role role = null;
         String username = null;
 
-        final Optional<Medic> medicOptional = medicService.getLoggedMedic();
-        final Optional<Engineer> engineerOptional = engineerService.getLoggedEngineer();
+        final Optional<Medic> medicOptional = medicService.getLoggedPersonal();
+        final Optional<Engineer> engineerOptional = engineerService.getLoggedPersonal();
+        final Optional<Admin> adminOptional = administratorService.getLoggedPersonal();
 
         if (medicOptional.isPresent()) {
             role = Role.MEDIC;
@@ -56,6 +58,9 @@ public class PersonalService {
         } else if (engineerOptional.isPresent()) {
             role = Role.ENGINEER;
             username = engineerOptional.get().getUsername();
+        } else if (adminOptional.isPresent()) {
+            role = Role.ADMIN;
+            username = adminOptional.get().getUsername();
         }
         if (role != null && username != null) {
             try {

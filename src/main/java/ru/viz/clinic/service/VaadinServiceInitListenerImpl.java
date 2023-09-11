@@ -9,11 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.viz.clinic.data.Role;
 import ru.viz.clinic.security.AuthenticationService;
-import ru.viz.clinic.views.order.AdminOrderView;
-import ru.viz.clinic.views.order.EngineerOrderView;
-import ru.viz.clinic.views.login.ChangePassword;
+import ru.viz.clinic.views.login.ChangePasswordView;
 import ru.viz.clinic.views.login.LoginView;
-import ru.viz.clinic.views.order.MedicOrderView;
 
 import java.util.Objects;
 
@@ -34,11 +31,11 @@ public class VaadinServiceInitListenerImpl implements VaadinServiceInitListener 
     }
 
     private void authenticateNavigation(final BeforeEnterEvent event) {
-        //if user has role TEMP reroute to ChangePassword
+        //if user has role TEMP reroute to ChangePasswordView
         authenticationService.getUserDetails()
                 .flatMap(userDetails -> userDetails.getAuthorities().stream().filter(grantedAuthority ->
                                 StringUtils.equals(grantedAuthority.getAuthority(), Role.TEMP.getAuthority()))
-                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(ChangePassword.class));
+                        .findFirst()).ifPresent(grantedAuthority -> event.forwardTo(ChangePasswordView.class));
 
         //if user not login in, reroute to LoginView
         if (!LoginView.class.equals(event.getNavigationTarget()) && !authenticationService.isUserLoggedIn()) {

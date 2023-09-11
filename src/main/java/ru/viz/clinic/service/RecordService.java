@@ -5,51 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.viz.clinic.data.EventType;
 import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.data.entity.Record;
-import ru.viz.clinic.data.repository.RecordRepository;
 import ru.viz.clinic.help.Helper;
+import ru.viz.clinic.repository.RecordRepository;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
-import static ru.viz.clinic.help.Translator.*;
+import static ru.viz.clinic.help.Helper.formatAndShowErrorMessage;
+import static ru.viz.clinic.help.Helper.showErrorNotification;
 
 @Service
 @Slf4j
-public class RecordService {
-    private final RecordRepository recordRepository;
-
+public class RecordService extends AbstractService<Record, RecordRepository> {
     @Autowired
     public RecordService(@NotNull final RecordRepository recordRepository) {
-        this.recordRepository = Objects.requireNonNull(recordRepository);
-    }
-
-    @Transactional
-    public void save(final Record record) {
-        try {
-            recordRepository.save(record);
-            Helper.showSuccessNotification(MSG_RECORD_UPDATED);
-        } catch (final Exception e) {
-            Helper.showErrorNotification(ERR_RECORD_SAVED_FAILED);
-            log.error("saving record failed, with error", e);
-        }
-    }
-
-    public List<Record> getAll() {
-        return recordRepository.findAll();
-    }
-
-    public Record getRecordById(final Long id) {
-        return recordRepository.findById(id).orElse(null);
-    }
-
-    public void deleteRecordById(final Long id) {
-        recordRepository.deleteById(id);
+        super(recordRepository);
     }
 
     public void addRecord(
@@ -68,7 +41,11 @@ public class RecordService {
         if (personal instanceof final Medic medic) {
             record.setMedic(medic);
         }
-        save(record);
+        if (personal instanceof final Admin admin) {
+            record.setAdmin(admin);
+        }
+        save(record, r -> {
+        }, r -> formatAndShowErrorMessage("Протокол '%s' не обнавлен", r));
     }
 
     public void addRecord(
@@ -82,8 +59,11 @@ public class RecordService {
                 Strings.EMPTY);
     }
 
-    @Transactional
     public Set<Record> getByOrderId(@NotNull final Long orderId) {
-        return recordRepository.getRecordsByOrderId(orderId);
+        return repository.getRecordsByOrderId(Objects.requireNonNull(orderId));
+    }
+
+    public Set<Record> getByMedicId(@NotNull final Long medicId) {
+        return repository.getByMedicId(Objects.requireNonNull(medicId));
     }
 }

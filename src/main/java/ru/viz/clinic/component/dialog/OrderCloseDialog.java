@@ -11,13 +11,10 @@ public class OrderCloseDialog extends ConfirmDialog {
 
     public OrderCloseDialog() {
         setHeader(DLH_CLOSE_ORDER);
-
         final Button btnConfirm = new Button(BTN_CLOSE_ORDER);
-
         this.setConfirmButton(btnConfirm);
         this.setCancelText(BTN_CANCEL);
         this.setCancelable(true);
-
         this.add(commentTextArea);
     }
 }

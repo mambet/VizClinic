@@ -5,9 +5,10 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.viz.clinic.data.OrderState;
+import ru.viz.clinic.help.Translator;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,15 +28,18 @@ public class Order extends AbstractEntity {
     private Equipment equipment;
     @Column(name = "description", length = 1000)
     private String description;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medic_id", nullable = false)
     private Medic medic;
+
     @Column(name = "create_time")
     @CreationTimestamp
     private LocalDateTime createTime;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "destination_engineer_id", nullable = false)
-    private Set<Engineer> destinationEngineers;
+    private Set<Engineer> destinationEngineers = new HashSet<>();
     //mutable fields
     private OrderState orderState;
     @ManyToOne
@@ -50,5 +54,15 @@ public class Order extends AbstractEntity {
     @Column(name = "end_time")
     private LocalDateTime endTime;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Record> records;
+    private Set<Record> records = new HashSet<>();
+
+    @Override
+    public String getEntityDesignation() {
+        return Translator.ENTITY_NAME_ORDER;
+    }
+
+    @Override
+    public String getEntityName() {
+        return String.valueOf(id);
+    }
 }

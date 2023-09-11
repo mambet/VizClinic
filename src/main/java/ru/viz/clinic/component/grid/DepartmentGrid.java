@@ -3,6 +3,7 @@ package ru.viz.clinic.component.grid;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Department;
 import ru.viz.clinic.data.entity.Hospital;
@@ -16,8 +17,12 @@ import static ru.viz.clinic.help.Translator.*;
 public class DepartmentGrid extends RUDGrid<Department> implements HospitalGridFilterUpdater {
     private DepartmentFilter departmentFilter;
 
-    public DepartmentGrid() {
+    private DepartmentGrid() {
         createTable();
+    }
+
+    public static DepartmentGrid createDepartmentGrid() {
+        return new DepartmentGrid();
     }
 
     @Override
@@ -35,13 +40,13 @@ public class DepartmentGrid extends RUDGrid<Department> implements HospitalGridF
 
     private void createTable() {
         this.setSelectionMode(Grid.SelectionMode.SINGLE);
+
         this.addColumn(Department::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
-        this.addColumn(department -> department.getHospital() != null
-                ? department.getHospital().getName() : Strings.EMPTY).setHeader(HDR_HOSPITAL).setAutoWidth(true);
+        this.addColumn(getStyled(Department::getHospital))
+                .setHeader(HDR_HOSPITAL).setAutoWidth(true);
         this.addColumn(Department::getName).setHeader(HDR_DEPARTMENT).setAutoWidth(true);
-        super.addRUDButtons();
+        super.addActionColumn();
         this.setAllRowsVisible(true);
-        this.addClassNames("select", "primary");
     }
 
     public static class DepartmentFilter {
@@ -74,18 +79,25 @@ public class DepartmentGrid extends RUDGrid<Department> implements HospitalGridF
     }
 
     @Override
-    protected void updateEntity(final Department department) {
-        fireEvent(new DepartmentGrid.UpdateDepartmentGridEvent(this, department));
+    protected void updateEntity(@NotNull final Department department) {
+        fireEvent(new UpdateGridEvent(this, department));
     }
 
     @Override
-    protected void deleteEntity(final Department department) {
-        fireEvent(new DepartmentGrid.DeleteDepartmentGridEvent(this, department));
+    protected void deleteEntity(@NotNull final Department department) {
+        fireEvent(new DeleteGridEvent(this, department));
     }
 
+    @Override
+    protected void setEntityActive(
+            @NotNull final Department department,
+            final boolean active
+    ) {
+        fireEvent(new SetActiveGridEvent(this, department, active));
+    }
 
-    public static class DeleteDepartmentGridEvent extends AbstractGridEvent<DepartmentGrid, Department> {
-        protected DeleteDepartmentGridEvent(
+    public static class DeleteGridEvent extends AbstractGridEvent<DepartmentGrid, Department> {
+        protected DeleteGridEvent(
                 @NotNull final DepartmentGrid source,
                 @NotNull final Department entity
         ) {
@@ -93,12 +105,26 @@ public class DepartmentGrid extends RUDGrid<Department> implements HospitalGridF
         }
     }
 
-    public static class UpdateDepartmentGridEvent extends AbstractGridEvent<DepartmentGrid, Department> {
-        protected UpdateDepartmentGridEvent(
+    public static class UpdateGridEvent extends AbstractGridEvent<DepartmentGrid, Department> {
+        protected UpdateGridEvent(
                 @NotNull final DepartmentGrid source,
                 @NotNull final Department entity
         ) {
             super(source, entity);
+        }
+    }
+
+    @Getter
+    public static class SetActiveGridEvent extends AbstractGridEvent<DepartmentGrid, Department> {
+        boolean active;
+
+        protected SetActiveGridEvent(
+                @NotNull final DepartmentGrid source,
+                @NotNull final Department entity,
+                final boolean active
+        ) {
+            super(source, entity);
+            this.active = active;
         }
     }
 }
