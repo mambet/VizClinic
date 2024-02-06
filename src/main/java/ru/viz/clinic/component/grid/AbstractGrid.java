@@ -5,6 +5,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -24,15 +25,20 @@ import static ru.viz.clinic.help.Translator.*;
 import static ru.viz.clinic.help.Translator.TTP_DELETE_ENTITY;
 
 public abstract class AbstractGrid<E extends AbstractEntity> extends Grid<E> {
+    private static final String SELECT_CLASS_NAME = "select";
+    private static final String ACTIVE_CLASS_NAME = "active";
+    private static final String INACTIVE_CLASS_NAME = "inactive";
+
     public AbstractGrid() {
-        this.addClassName("select");
+        this.addClassName(SELECT_CLASS_NAME);
         this.setPartNameGenerator(e -> {
             if (e.isActive()) {
-                return "active";
+                return ACTIVE_CLASS_NAME;
             } else {
-                return "inactive";
+                return INACTIVE_CLASS_NAME;
             }
         });
+        this.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
     @Override
@@ -41,19 +47,6 @@ public abstract class AbstractGrid<E extends AbstractEntity> extends Grid<E> {
             final ComponentEventListener<T> listener
     ) {
         return getEventBus().addListener(eventType, listener);
-    }
-
-    @Getter
-    public abstract static class AbstractGridEvent<T extends Component, E extends AbstractEntity> extends ComponentEvent<T> {
-        private final E entity;
-
-        protected AbstractGridEvent(
-                @NotNull final T source,
-                @NotNull final E entity
-        ) {
-            super(Objects.requireNonNull(source), false);
-            this.entity = Objects.requireNonNull(entity);
-        }
     }
 
     protected Button setActivateButton(@NotNull final E entity) {
@@ -96,11 +89,7 @@ public abstract class AbstractGrid<E extends AbstractEntity> extends Grid<E> {
 
     protected abstract void updateEntity(E e);
 
-    <T extends AbstractEntity> ComponentRenderer<Span, E> getStyled(final Function<E, T> getter) {
-        return new ComponentRenderer<>(order -> getSpan(order, getter.apply(order)));
-    }
-
-    <T extends AbstractEntity> ComponentRenderer<VerticalLayout, E> geStyledForList(final Function<E, Set<T>> getter) {
+    protected <T extends AbstractEntity> ComponentRenderer<VerticalLayout, E> geStyledForList(final Function<E, Set<T>> getter) {
         return new ComponentRenderer<>(order ->
         {
             final VerticalLayout layout = new VerticalLayout();
@@ -121,10 +110,27 @@ public abstract class AbstractGrid<E extends AbstractEntity> extends Grid<E> {
         final Span span = new Span(convertToPresentation(cell));
 
         if (row.isActive() && !cell.isActive()) {
-            span.addClassName("inactive");
+            span.addClassName(INACTIVE_CLASS_NAME);
         } else if (!row.isActive() && cell.isActive()) {
-            span.addClassName("active");
+            span.addClassName(ACTIVE_CLASS_NAME);
         }
         return span;
+    }
+
+    @Getter
+    public abstract static class AbstractGridEvent<T extends Component, E extends AbstractEntity> extends ComponentEvent<T> {
+        private final E entity;
+
+        protected AbstractGridEvent(
+                @NotNull final T source,
+                @NotNull final E entity
+        ) {
+            super(Objects.requireNonNull(source), false);
+            this.entity = Objects.requireNonNull(entity);
+        }
+    }
+
+    <T extends AbstractEntity> ComponentRenderer<Span, E> getStyled(final Function<E, T> getter) {
+        return new ComponentRenderer<>(order -> getSpan(order, getter.apply(order)));
     }
 }

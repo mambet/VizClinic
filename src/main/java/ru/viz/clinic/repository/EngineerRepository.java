@@ -8,10 +8,10 @@ import java.util.Set;
 
 @Repository
 public interface EngineerRepository extends CommonPersonalRepository<Engineer> {
-    Set<Engineer> getByHospitalId(@NotNull final Long id);
+    Set<Engineer> getByHospitalId(@NotNull final String id);
 
     Set<Engineer> getByHospitalIdAndActiveIs(
-            @NotNull final Long id,
+            @NotNull final String id,
             final boolean active
     );
 }

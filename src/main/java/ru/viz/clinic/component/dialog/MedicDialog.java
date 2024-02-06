@@ -96,7 +96,7 @@ public class MedicDialog extends PersonalDialog<Medic, MedicRepository> {
     }
 
     private void hospitalSelectListener(final AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {
-        final Long hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
+        final String hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
         if (departmentSelect != null) {
             departmentSelect.setItems(departmentService.getActiveByHospitalId(hospitalId));
         }

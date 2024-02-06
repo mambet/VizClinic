@@ -5,7 +5,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.data.provider.SortDirection;
 import jakarta.validation.constraints.NotNull;
-import ru.viz.clinic.converter.EntityToStringConverter;
 import ru.viz.clinic.data.entity.Record;
 
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public class RecordGrid extends Grid<Record> {
         this.addColumn(record -> convertToPresentation(record.getMedic())).setAutoWidth(true);
         this.addColumn(record -> convertToPresentation(record.getEngineer())).setAutoWidth(true);
         this.addColumn(record -> convertToPresentation(record.getAdmin())).setAutoWidth(true);
-        this.addColumn(record -> record.getEventType().getValue()).setAutoWidth(true);
+        this.addColumn(record -> record.getRecordType().getValue()).setAutoWidth(true);
         this.addColumn(Record::getComment).setAutoWidth(true);
         this.setSelectionMode(SelectionMode.NONE);
         this.setAllRowsVisible(true);

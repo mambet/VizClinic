@@ -104,7 +104,7 @@ public class HospitalService extends CommonEntityService<Hospital, HospitalRepos
         formatAndShowErrorMessage("ошибка при деактивации клиники '%s'", hospital);
     }
 
-    private boolean isNotActiveEngineer(final Long hospitalId) {
+    private boolean isNotActiveEngineer(final String hospitalId) {
         final Set<Engineer> engineers = engineerService.getActiveByHospitalId(hospitalId);
         if (!engineers.isEmpty()) {
             Helper.showErrorNotification(String.format("Еще активные инженеры: %s",
@@ -114,7 +114,7 @@ public class HospitalService extends CommonEntityService<Hospital, HospitalRepos
         return true;
     }
 
-    private boolean isInactiveEngineer(final Long hospitalId) {
+    private boolean isInactiveEngineer(final String hospitalId) {
         final Set<Engineer> engineers = engineerService.getInactiveByHospitalId(hospitalId);
         if (!engineers.isEmpty()) {
             Helper.showErrorNotification(String.format("Еще не активные инженеры: %s",
@@ -124,7 +124,7 @@ public class HospitalService extends CommonEntityService<Hospital, HospitalRepos
         return false;
     }
 
-    private boolean isNotActiveDepartment(final Long hospitalId) {
+    private boolean isNotActiveDepartment(final String hospitalId) {
         final List<Department> departments = departmentService.getActiveByHospitalId(hospitalId);
         if (!departments.isEmpty()) {
             Helper.showErrorNotification(String.format("Еще активные отделения: %s",
@@ -134,7 +134,7 @@ public class HospitalService extends CommonEntityService<Hospital, HospitalRepos
         return true;
     }
 
-    private boolean isInactiveDepartment(final Long hospitalId) {
+    private boolean isInactiveDepartment(final String hospitalId) {
         final List<Department> departments = departmentService.getInactiveByHospitalId(hospitalId);
         if (!departments.isEmpty()) {
             Helper.showErrorNotification(String.format("Еще не активные отделения: %s",

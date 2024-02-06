@@ -3,8 +3,8 @@ package ru.viz.clinic.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import ru.viz.clinic.data.EventType;
-import ru.viz.clinic.help.Translator;
+import org.hibernate.annotations.GenericGenerator;
+import ru.viz.clinic.data.RecordType;
 
 import java.time.LocalDateTime;
 
@@ -16,10 +16,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 
 public class Record extends AbstractEntity {
+    private static final String RECORD_ID_PREFIX = "ПР";
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private EventType eventType;
+    @GeneratedValue(generator = "hospital-generator")
+    @GenericGenerator(name = "hospital-generator",
+            parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = RECORD_ID_PREFIX),
+            type = ru.viz.clinic.data.IdGenerator.class)
+    private String id;
+    private RecordType recordType;
     @ManyToOne
     @JoinColumn(name = "engineer_id")
     private Engineer engineer;
@@ -36,11 +40,6 @@ public class Record extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
-
-    @Override
-    public String getEntityDesignation() {
-        return Translator.ENTITY_NAME_RECORD;
-    }
 
     @Override
     public String getEntityName() {

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import ru.viz.clinic.component.grid.EngineerOrderGrid;
 import ru.viz.clinic.component.grid.OrderGrid;
-import ru.viz.clinic.data.EventType;
+import ru.viz.clinic.data.RecordType;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Order;
 import ru.viz.clinic.data.entity.Personal;
@@ -54,7 +54,7 @@ public class EngineerOrderView extends OrderView<EngineerOrderGrid> {
         Objects.requireNonNull(event);
         final Order order = Objects.requireNonNull(event.getEntity());
         orderService.adoptOrder(order, engineer).ifPresent(savedOrder -> {
-            recordService.addRecord(EventType.ADOPT_ORDER, engineer, savedOrder);
+            recordService.addRecord(RecordType.ADOPT_ORDER, engineer, savedOrder);
             updateGrid();
         });
     }

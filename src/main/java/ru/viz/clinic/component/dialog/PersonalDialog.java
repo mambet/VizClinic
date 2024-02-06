@@ -37,6 +37,7 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonPersona
     protected void addPersonalFields() {
         final RadioButtonGroup<Gender> genderField = new RadioButtonGroup<>(LBL_GENDER);
         final TextField firstNameField = new TextField(LBL_FIRST_NAME);
+        final TextField middleNameField = new TextField(LBL_MIDDLE_NAME);
         final TextField lastNameField = new TextField(LBL_LAST_NAME);
         final DatePicker birthDateField = new DatePicker(LBL_BIRTHDAY);
         final TextField phoneField = new TextField(LBL_PHONE);
@@ -58,6 +59,7 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonPersona
 
         binder.forField(firstNameField).asRequired().bind(Personal::getFirstName, Personal::setFirstName);
         binder.forField(lastNameField).asRequired().bind(Personal::getLastName, Personal::setLastName);
+        binder.forField(middleNameField).asRequired().bind(Personal::getMiddleName, Personal::setMiddleName);
         binder.forField(genderField).bind(Personal::getGender, Personal::setGender);
         binder.forField(birthDateField)
                 .withValidator(localDate -> localDate == null || localDate.isBefore(LocalDate.now()),
@@ -70,7 +72,7 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonPersona
         binder.forField(emailField).asRequired().withValidator(new EmailValidator(ERR_MSG_EMAIL_IS_INVALID, true))
                 .bind(Personal::getEmail, Personal::setEmail);
 
-        formLayout.add(firstNameField, lastNameField, birthDateField, genderField, emailField, phoneField);
+        formLayout.add(firstNameField, middleNameField, lastNameField, birthDateField, genderField, emailField, phoneField);
     }
 
     protected void addAuthorisationFields(final AuthenticationService authenticationService) {
@@ -92,7 +94,7 @@ public abstract class PersonalDialog<P extends Personal, R extends CommonPersona
                 .asRequired()
                 .withValidator(password -> password.length() >= WORD_LENGTH, ERR_MSG_PASS_NAME_IS_SHORT,
                         ErrorLevel.ERROR)
-                .bind( Personal::getTempPass, Personal::setTempPass);
+                .bind(Personal::getTempPass, Personal::setTempPass);
 
         formLayout.add(usernameField, passwordField);
     }

@@ -10,10 +10,10 @@ import java.util.Set;
 
 @Repository
 public interface MedicRepository extends CommonPersonalRepository<Medic>, JpaSpecificationExecutor<Medic> {
-    Set<Medic> getByDepartmentId(@NotNull final Long departmentId);
+    Set<Medic> getByDepartmentId(@NotNull final String departmentId);
 
     Set<Medic> getByDepartmentIdAndActiveIs(
-            @NotNull final Long departmentId,
+            @NotNull final String departmentId,
             final boolean active
     );
 }

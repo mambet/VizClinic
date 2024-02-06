@@ -13,42 +13,42 @@ import java.util.Set;
 @Repository
 public interface OrderRepository extends CommonRepository<Order> {
     @Query("SELECT o FROM Order o WHERE o.equipment.department.hospital.id = :hospitalId")
-    List<Order> getByHospitalId(@Param("hospitalId") Long hospitalId);
+    List<Order> getByHospitalId(@Param("hospitalId") String hospitalId);
 
-    Set<Order> getByEquipmentId(@NotNull final Long equipmentId);
+    Set<Order> getByEquipmentId(@NotNull final String equipmentId);
 
     @Query("SELECT o FROM Order o WHERE o.equipment.department.id = :departmentId")
-    List<Order> getByDepartmentId(@Param("departmentId") @NotNull final Long id);
+    List<Order> getByDepartmentId(@Param("departmentId") @NotNull final String id);
 
-    List<Order> getByDestinationEngineersId(@Param("engineersId") @NotNull final Long id);
+    List<Order> getByDestinationEngineersId(@Param("engineersId") @NotNull final String id);
 
     @Query("SELECT o FROM Order o WHERE o.equipment.department.hospital.id = :hospitalId AND o.active = :active")
     List<Order> getByHospitalIdAndActiveIs(
-            @Param("hospitalId") @NotNull Long hospitalId,
+            @Param("hospitalId") @NotNull String hospitalId,
             @Param("active") final boolean active
     );
 
     @Query("SELECT o FROM Order o WHERE o.equipment.department.hospital.id = :hospitalId AND o.active = :active AND  " +
             "o.orderState = :orderState")
     List<Order> getByHospitalIdAndActiveIsAndOrderStateIs(
-            @Param("hospitalId") @NotNull Long hospitalId,
+            @Param("hospitalId") @NotNull String hospitalId,
             @Param("active") final boolean active,
             @Param("orderState") final OrderState orderState
     );
 
     @Query("SELECT o FROM Order o WHERE o.equipment.department.id = :departmentId AND o.active = :active")
     List<Order> getByDepartmentIdAndActiveIs(
-            @Param("departmentId") @NotNull final Long id,
+            @Param("departmentId") @NotNull final String id,
             @Param("active") final boolean active
     );
 
     List<Order> getByDestinationEngineersIdAndActiveIs(
-            @Param("engineersId") @NotNull final Long id,
+            @Param("engineersId") @NotNull final String id,
             final boolean active
     );
 
     Set<Order> getByEquipmentIdAndActiveIs(
-            @NotNull final Long equipmentId,
+            @NotNull final String equipmentId,
             final boolean active
     );
 }

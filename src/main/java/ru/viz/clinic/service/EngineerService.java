@@ -53,11 +53,11 @@ public class EngineerService extends CommonPersonalService<Engineer, EngineerRep
                 Objects.requireNonNull(authenticationService));
     }
 
-    public Set<Engineer> getActiveByHospitalId(@NotNull final Long hospitalId) {
+    public Set<Engineer> getActiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(Objects.requireNonNull(hospitalId), true);
     }
 
-    public Set<Engineer> getInactiveByHospitalId(@NotNull final Long hospitalId) {
+    public Set<Engineer> getInactiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(Objects.requireNonNull(hospitalId), false);
     }
 

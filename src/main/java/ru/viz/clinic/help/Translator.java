@@ -18,7 +18,7 @@ public interface Translator {
     String BTN_CONFIRM_CREATE = "Создать";
     String BTN_CONFIRM_UPDATE = "Изменить";
     String BTN_CLOSE_ORDER = "Закрыть заявку";
-    String BTN_CONFIRM_CREATE_PLUS = "+ Создать";
+    String BTN_CONFIRM_CREATE_PLUS = "Создать";
     String BTN_CREATE_COMMENT = "Оставить комментарий";
     String BTN_LEAVE_ORDER = "Отказываюсь";
     /***
@@ -38,6 +38,7 @@ public interface Translator {
     String LBL_EQUIPMENT_CREATE_DATE = "Дата выпуска";
     String LBL_EQUIPMENT_COMMISSIONING_DATE = "Дата ввода в эксплуатацию";
     String LBL_FIRST_NAME = "Имя";
+    String LBL_MIDDLE_NAME = "Отчество";
     String LBL_LAST_NAME = "Фамилия";
     String LBL_BIRTHDAY = "Дата рождения";
     String LBL_GENDER = "Пол";
@@ -131,6 +132,7 @@ public interface Translator {
     String HDR_ID = "Номер";
     String HDR_USER = "Пользователь";
     String HDR_FIRST_NAME = "Имя";
+    String HDR_MIDDLE_NAME = "Отчество";
     String HDR_LAST_NAME = "Фамилия";
     String HDR_PHONE = "Номер телефона";
     String HDR_MAIL = "Почта";

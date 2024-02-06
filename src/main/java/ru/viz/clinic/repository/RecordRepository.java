@@ -9,6 +9,6 @@ import java.util.Set;
 
 @Repository
 public interface RecordRepository extends CommonRepository<Record>, JpaSpecificationExecutor<Record> {
-    Set<Record> getRecordsByOrderId(@NotNull final Long id);
-    Set<Record> getByMedicId(Long medicId);
+    Set<Record> getRecordsByOrderId(@NotNull final String id);
+    Set<Record> getByMedicId(String medicId);
 }

@@ -3,7 +3,7 @@ package ru.viz.clinic.data.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import ru.viz.clinic.help.Translator;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Setter
@@ -11,8 +11,11 @@ import ru.viz.clinic.help.Translator;
 @Table(name = "admin")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Admin extends Personal {
-    @Override
-    public String getEntityDesignation() {
-        return Translator.ENTITY_NAME_ADMIN;
-    }
+    private static final String ADMIN_ID_PREFIX = "АМ";
+    @Id
+    @GeneratedValue(generator = "hospital-generator")
+    @GenericGenerator(name = "hospital-generator",
+            parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = ADMIN_ID_PREFIX),
+            type = ru.viz.clinic.data.IdGenerator.class)
+    private String id;
 }

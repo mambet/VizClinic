@@ -11,7 +11,7 @@ import ru.viz.clinic.component.dialog.OrderDialog;
 import ru.viz.clinic.component.grid.MedicOrderGrid;
 import ru.viz.clinic.component.grid.OrderGrid;
 import ru.viz.clinic.data.EngineersAndEquipment;
-import ru.viz.clinic.data.EventType;
+import ru.viz.clinic.data.RecordType;
 import ru.viz.clinic.data.entity.*;
 import ru.viz.clinic.service.*;
 import ru.viz.clinic.views.MainLayout;
@@ -75,7 +75,7 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
     private void createOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
         orderService.createOrder(order).ifPresent(savedOrder -> {
-            recordService.addRecord(EventType.START_ORDER, medic, savedOrder);
+            recordService.addRecord(RecordType.START_ORDER, medic, savedOrder);
             updateGrid();
         });
     }
@@ -84,8 +84,8 @@ public class MedicOrderView extends OrderView<MedicOrderGrid> {
         Collection<Engineer> engineers = new ArrayList<>();
         Collection<Equipment> equipment = new ArrayList<>();
         try {
-            final Long hospitalId = medic.getDepartment().getHospital().getId();
-            final Long departmentId = medic.getDepartment().getId();
+            final String hospitalId = medic.getDepartment().getHospital().getId();
+            final String departmentId = medic.getDepartment().getId();
             engineers = engineerService.getActiveByHospitalId(hospitalId);
             equipment = equipmentService.getActiveByDepartmentId(departmentId);
         } catch (final Exception e) {

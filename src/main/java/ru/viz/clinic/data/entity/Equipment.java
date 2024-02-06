@@ -3,7 +3,7 @@ package ru.viz.clinic.data.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.viz.clinic.help.Translator;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -17,6 +17,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Equipment extends AbstractEntity {
+    private static final String EQUIPMENT_ID_PREFIX = "ОБ";
+
     public Equipment(
             @NotNull final Medic medic,
             @NotNull final Department department
@@ -26,9 +28,11 @@ public class Equipment extends AbstractEntity {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ToString.Exclude
-    private Long id;
+    @GeneratedValue(generator = "hospital-generator")
+    @GenericGenerator(name = "hospital-generator",
+            parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = EQUIPMENT_ID_PREFIX),
+            type = ru.viz.clinic.data.IdGenerator.class)
+    private String id;
     private String name;
     private String inventoryNumber;
     private String factoryNumber;
@@ -42,12 +46,7 @@ public class Equipment extends AbstractEntity {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    private Set<Order> orders=new HashSet<>();
-
-    @Override
-    public String getEntityDesignation() {
-        return Translator.ENTITY_NAME_EQUIPMENT;
-    }
+    private Set<Order> orders = new HashSet<>();
 
     @Override
     public String getEntityName() {

@@ -7,8 +7,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: create
     show-sql: false
   mustache:
     check-template-location: false
@@ -17,15 +15,13 @@ spring:
     password: ${viz-clinic.db-pass}
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${viz-clinic.db-host}:${viz-clinic.db-port}/${viz-clinic.db-name}?createDatabaseIfNotExist=true
-  sql:
-    init:
-      mode: always
+
   mail:
     host: ${viz-clinic.mail-host}
     port: ${viz-clinic.mail-port}
     username: ${viz-clinic.mail-user}
     password: ${viz-clinic.mail-pass}
-    test-connection: true
+    test-connection: false
     protocol: smtps
     properties:
       mail:
@@ -49,8 +45,8 @@ spring:
 viz-clinic:
   mail-host: ${MAIL_HOST:smtp.yandex.ru}
   mail-port: ${MAIL_PORT:465}
-  mail-user: ${MAIL_USER:dimitrijmackert@yandex.ru}
-  mail-pass: ${MAIL_PASS:NTheJAhVSK5rp_m}
+  mail-user: ${MAIL_USER:Medtechinfo@yandex.ru}
+  mail-pass: ${MAIL_PASS:ewxrfyuzithphfew}
 
 server:
   port: ${PORT:8080}
@@ -62,12 +58,12 @@ spring:
       on-profile: local
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
 
 viz-clinic:
   db-port: ${DB_PORT:3306}
   db-host: ${DB_HOST:127.0.0.1}
-  db-pass: ${DB_PASS:mau}
+  db-pass: ${DB_PASS:iesk12mUamdHGd%%}
   db-name: ${DB_NAME:viz_clinic_db_local}
 
 ---
@@ -80,39 +76,30 @@ spring:
       ddl-auto: create
   sql:
     init:
+      mode: always
       schema-locations: classpath:data_local.sql
     default-encoding: UTF-8
 
 viz-clinic:
   db-port: ${DB_PORT:3306}
   db-host: ${DB_HOST:127.0.0.1}
-  db-pass: ${DB_PASS:mau}
+  db-pass: ${DB_PASS:iesk12mUamdHGd%%}
   db-name: ${DB_NAME:viz_clinic_db_local}
 
 ---
 spring:
   config:
     activate:
-      on-profile: test
+      on-profile: prod
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update  #hibernate delete and create table
+  sql:
+    init:
+      mode: never  #run data.sql
 
 viz-clinic:
   db-port: ${DB_PORT:3306}
   db-host: ${DB_HOST:172.20.128.2}
-  db-pass: ${DB_PASS:mau}
+  db-pass: ${DB_PASS:k*%Z3otJrT3o5J}
   db-name: ${DB_NAME:viz_clinic_db_test}
-
-
-
-
-  #  ssl:
-  #    key-store-type: PKCS12
-  #    key-store: classpath:keystore/vizclinic.p12
-  #    key-store-password: test1234
-  #    key-alias: vizclinic
-  #    enabled: true
-  #trust:
-  #  store: classpath:keystore/vizclinic.p12
-  #  store-password: test1234

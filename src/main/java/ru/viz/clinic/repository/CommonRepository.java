@@ -7,7 +7,7 @@ import ru.viz.clinic.data.entity.AbstractEntity;
 import java.util.List;
 
 @NoRepositoryBean
-public interface CommonRepository<E extends AbstractEntity> extends JpaRepository<E, Long> {
+public interface CommonRepository<E extends AbstractEntity> extends JpaRepository<E, String> {
     List<E> findByActiveTrue();
 
     List<E> findByActiveFalse();

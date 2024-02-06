@@ -54,34 +54,34 @@ public class OrderService extends CommonEntityService<Order, OrderRepository> {
     }
 
     // need for extern services
-    public List<Order> getActiveByHospitalId(@NotNull final Long hospitalId) {
+    public List<Order> getActiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(hospitalId, true);
     }
 
-    public List<Order> getInactiveByHospitalId(@NotNull final Long hospitalId) {
+    public List<Order> getInactiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(hospitalId, false);
     }
 
-    public Set<Order> getActiveByEquipmentId(@NotNull final Long equipmentId) {
+    public Set<Order> getActiveByEquipmentId(@NotNull final String equipmentId) {
         return repository.getByEquipmentIdAndActiveIs(Objects.requireNonNull(equipmentId), true);
     }
 
-    public Set<Order> getInactiveByEquipmentId(@NotNull final Long equipmentId) {
+    public Set<Order> getInactiveByEquipmentId(@NotNull final String equipmentId) {
         return repository.getByEquipmentIdAndActiveIs(Objects.requireNonNull(equipmentId), false);
     }
 
     public List<Order> getActiveByHospitalIdAndByOrderState(
-            @NotNull final Long hospitalId,
+            @NotNull final String hospitalId,
             @NotNull final OrderState orderState
     ) {
         return repository.getByHospitalIdAndActiveIsAndOrderStateIs(hospitalId, true, orderState);
     }
 
-    public List<Order> getActiveByDepartmentId(@NotNull final Long departmentId) {
+    public List<Order> getActiveByDepartmentId(@NotNull final String departmentId) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, true);
     }
 
-    public List<Order> getInactiveByDepartmentId(@NotNull final Long departmentId) {
+    public List<Order> getInactiveByDepartmentId(@NotNull final String departmentId) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, false);
     }
 

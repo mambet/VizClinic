@@ -15,14 +15,11 @@ import java.util.List;
 @Getter
 @MappedSuperclass
 public abstract class Personal extends AbstractEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
-    @SequenceGenerator(name = "idgenerator", initialValue = 3000)
-    private Long id;
     @NotBlank(message = "username is required")
     private String username;
     private String tempPass;
     private String firstName;
+    private String middleName;
     private String lastName;
     private LocalDate birthDate;
     private Gender gender;
@@ -31,6 +28,6 @@ public abstract class Personal extends AbstractEntity {
 
     @Override
     public String getEntityName() {
-        return firstName + " " + lastName;
+        return StringUtils.joinWith(" ", firstName, middleName, lastName);
     }
 }

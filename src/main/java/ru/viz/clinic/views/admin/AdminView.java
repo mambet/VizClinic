@@ -3,6 +3,7 @@ package ru.viz.clinic.views.admin;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -45,11 +46,11 @@ public class AdminView extends VerticalLayout {
     private final EquipmentGrid equipmentGrid;
     private final AtomicReference<Hospital> hospitalSelected = new AtomicReference<>();
     private final AtomicReference<Department> departmentSelected = new AtomicReference<>();
-    private final Button btnCreateHospital = new Button(BTN_CONFIRM_CREATE_PLUS);
-    private final Button btnCreateDepartment = new Button(BTN_CONFIRM_CREATE_PLUS);
-    private final Button btnCreateEngineer = new Button(BTN_CONFIRM_CREATE_PLUS);
-    private final Button btnCreateMedic = new Button(BTN_CONFIRM_CREATE_PLUS);
-    private final Button btnCreateEquipment = new Button(BTN_CONFIRM_CREATE_PLUS);
+    private final Button btnCreateHospital = new Button(VaadinIcon.PLUS.create());
+    private final Button btnCreateDepartment = new Button(VaadinIcon.PLUS.create());
+    private final Button btnCreateEngineer = new Button(VaadinIcon.PLUS.create());
+    private final Button btnCreateMedic = new Button(VaadinIcon.PLUS.create());
+    private final Button btnCreateEquipment = new Button(VaadinIcon.PLUS.create());
     private boolean activeState;
 
     public AdminView(
@@ -94,16 +95,17 @@ public class AdminView extends VerticalLayout {
         this.equipmentGrid.addListener(EquipmentGrid.DeleteGridEvent.class, this::handleDeleteEquipment);
         this.equipmentGrid.addListener(EquipmentGrid.SetActiveGridEvent.class, this::handleSetActiveEquipment);
 
-        long time= System.currentTimeMillis();
-
-
         this.hospitalGrid.setItems(hospitalService.getAllActive());
         this.medicGrid.setItems(medicService.getAllActive());
         this.engineerGrid.setItems(engineerService.getAllActive());
         this.departmentGrid.setItems(departmentService.getAllActive());
         this.equipmentGrid.setItems(equipmentService.getAllActive());
 
-        log.info("zeit ist {}", System.currentTimeMillis()-time);
+        this.btnCreateDepartment.setText(BTN_CONFIRM_CREATE_PLUS);
+        this.btnCreateHospital.setText(BTN_CONFIRM_CREATE_PLUS);
+        this.btnCreateEngineer.setText(BTN_CONFIRM_CREATE_PLUS);
+        this.btnCreateMedic.setText(BTN_CONFIRM_CREATE_PLUS);
+        this.btnCreateEquipment.setText(BTN_CONFIRM_CREATE_PLUS);
 
         final Select<Boolean> activeStateSelect = new Select<>();
         activeStateSelect.setItems(true, false);

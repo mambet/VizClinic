@@ -5,17 +5,19 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Personal;
 
+import static ru.viz.clinic.help.Helper.getDateRenderer;
 import static ru.viz.clinic.help.Translator.*;
 
-public abstract class PersonGrid<T extends Personal> extends  RUDGrid<T> {
-    public PersonGrid() {
+public abstract class PersonalGrid<T extends Personal> extends  RUDGrid<T> {
+    public PersonalGrid() {
         this.addColumn(Personal::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
         this.addColumn(Personal::getUsername).setHeader(HDR_USER).setAutoWidth(true);
         this.addColumn(Personal::getFirstName).setHeader(HDR_FIRST_NAME);
+        this.addColumn(Personal::getMiddleName).setHeader(HDR_MIDDLE_NAME);
         this.addColumn(Personal::getLastName).setHeader(HDR_LAST_NAME);
         this.addColumn(Personal::getPhone).setHeader(HDR_PHONE);
         this.addColumn(Personal::getEmail).setHeader(HDR_MAIL);
-        this.addColumn(Personal::getBirthDate).setHeader(HDR_BIRTHDAY);
+        this.addColumn(getDateRenderer(Personal::getBirthDate)).setHeader(HDR_BIRTHDAY);
         this.addColumn(person -> person.getGender() != null ? person.getGender().getGenderAsString() : Strings.EMPTY)
                 .setAutoWidth(true)
                 .setHeader(HDR_GENDER);
@@ -67,5 +69,4 @@ public abstract class PersonGrid<T extends Personal> extends  RUDGrid<T> {
                     || value.toLowerCase().contains(searchTerm.toLowerCase());
         }
     }
-
 }

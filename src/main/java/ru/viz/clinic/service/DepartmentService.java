@@ -31,11 +31,11 @@ public class DepartmentService extends CommonEntityService<Department, Departmen
         this.equipmentService = Objects.requireNonNull(equipmentService);
     }
 
-    public List<Department> getActiveByHospitalId(@NotNull final Long hospitalId) {
+    public List<Department> getActiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(Objects.requireNonNull(hospitalId), true);
     }
 
-    public List<Department> getInactiveByHospitalId(@NotNull final Long hospitalId) {
+    public List<Department> getInactiveByHospitalId(@NotNull final String hospitalId) {
         return repository.getByHospitalIdAndActiveIs(Objects.requireNonNull(hospitalId), false);
     }
 

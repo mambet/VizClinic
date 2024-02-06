@@ -21,7 +21,7 @@ public abstract class AbstractService<E extends AbstractEntity, R extends Common
         this.repository = repository;
     }
 
-    public Optional<E> get(final Long id) {
+    public Optional<E> get(final String id) {
         return repository.findById(id);
     }
 

@@ -4,9 +4,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.data.entity.Department;
-import ru.viz.clinic.data.entity.Equipment;
 import ru.viz.clinic.data.entity.Hospital;
 import ru.viz.clinic.data.entity.Medic;
 import ru.viz.clinic.data.model.DepartmentGridFilterUpdater;
@@ -16,7 +14,7 @@ import java.util.*;
 import static ru.viz.clinic.help.Translator.HDR_DEPARTMENT;
 import static ru.viz.clinic.help.Translator.HDR_HOSPITAL;
 
-public class MedicGrid extends PersonGrid<Medic> implements DepartmentGridFilterUpdater {
+public class MedicGrid extends PersonalGrid<Medic> implements DepartmentGridFilterUpdater {
     public MedicPersonFilter medicPersonFilter;
 
     private MedicGrid() {

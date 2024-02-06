@@ -45,13 +45,13 @@ public class MedicService extends CommonPersonalService<Medic, MedicRepository> 
     }
 
     public Set<Medic> getActiveByDepartmentId(
-            @NotNull final Long departmentId
+            @NotNull final String departmentId
     ) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, true);
     }
 
     public Set<Medic> getInactiveByDepartmentId(
-            @NotNull final Long departmentId
+            @NotNull final String departmentId
     ) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, false);
     }

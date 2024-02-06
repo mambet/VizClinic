@@ -9,10 +9,10 @@ import java.util.List;
 
 @Repository
 public interface DepartmentRepository extends CommonRepository<Department>, JpaSpecificationExecutor<Department> {
-    List<Department> getByHospitalId(@NotNull final Long hospitalId);
+    List<Department> getByHospitalId(@NotNull final String hospitalId);
 
     List<Department> getByHospitalIdAndActiveIs(
-            @NotNull final Long id,
+            @NotNull final String id,
             final boolean active
     );
 }

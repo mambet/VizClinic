@@ -31,7 +31,7 @@ public class HospitalGrid extends RUDGrid<Hospital> {
         this.addColumn(Hospital::getId).setHeader(HDR_ID).setWidth("7em").setFlexGrow(0);
         this.addColumn(Hospital::getName).setHeader(HDR_HOSPITAL);
         this.addColumn(hospital -> hospital.getAddress() != null
-                ? hospital.getAddress().toString() : Strings.EMPTY).setHeader(HDR_ADDRESS);
+                ? hospital.getAddress().getEntityName() : Strings.EMPTY).setHeader(HDR_ADDRESS);
         super.addActionColumn();
         this.setAllRowsVisible(true);
     }

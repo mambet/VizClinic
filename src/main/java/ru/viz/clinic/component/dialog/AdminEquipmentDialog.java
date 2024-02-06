@@ -70,7 +70,7 @@ public class AdminEquipmentDialog extends EquipmentDialog {
     }
 
     private void hospitalSelectListener(final AbstractField.ComponentValueChangeEvent<Select<Hospital>, Hospital> selectHospitalComponentValueChangeEvent) {
-        final Long hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
+        final String hospitalId = selectHospitalComponentValueChangeEvent.getValue().getId();
         departmentSelect.setItems(departmentService.getActiveByHospitalId(hospitalId));
     }
 }

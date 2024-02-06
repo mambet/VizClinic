@@ -3,9 +3,9 @@ package ru.viz.clinic.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.viz.clinic.data.OrderState;
-import ru.viz.clinic.help.Translator;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -19,10 +19,14 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Order extends AbstractEntity {
+    private static final String ORDER_ID_PREFIX = "ЗВ";
     //immutable fields
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "hospital-generator")
+    @GenericGenerator(name = "hospital-generator",
+            parameters = @org.hibernate.annotations.Parameter(name = "prefix", value = ORDER_ID_PREFIX),
+            type = ru.viz.clinic.data.IdGenerator.class)
+    private String id;
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
@@ -55,11 +59,6 @@ public class Order extends AbstractEntity {
     private LocalDateTime endTime;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Record> records = new HashSet<>();
-
-    @Override
-    public String getEntityDesignation() {
-        return Translator.ENTITY_NAME_ORDER;
-    }
 
     @Override
     public String getEntityName() {

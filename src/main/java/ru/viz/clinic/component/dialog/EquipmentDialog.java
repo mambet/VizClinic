@@ -37,13 +37,13 @@ public abstract class EquipmentDialog extends VizConfirmDialog<Equipment> {
         binder.forField(inventoryNumber).asRequired()
                 .bind(Equipment::getInventoryNumber, Equipment::setInventoryNumber);
         binder.forField(factoryNumber).asRequired().bind(Equipment::getFactoryNumber, Equipment::setFactoryNumber);
-        binder.forField(createDate).asRequired()
+        binder.forField(createDate)
                 .withValidator(localDate -> localDate == null || localDate.isBefore(LocalDate.now()),
                         ERR_MSG_CREATION_DATE_IS_AFTER_NOW,
                         ErrorLevel.ERROR)
                 .bind(Equipment::getCreateDate, Equipment::setCreateDate);
 
-        binder.forField(commissioningDate).asRequired()
+        binder.forField(commissioningDate)
                 .withValidator(localDate -> localDate == null || localDate.isBefore(LocalDate.now()),
                         ERR_MSG_CREATION_DATE_IS_AFTER_NOW,
                         ErrorLevel.ERROR)

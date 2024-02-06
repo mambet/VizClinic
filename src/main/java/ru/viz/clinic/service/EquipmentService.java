@@ -39,11 +39,11 @@ public class EquipmentService extends CommonEntityService<Equipment, EquipmentRe
         this.orderService = Objects.requireNonNull(orderService);
     }
 
-    public Set<Equipment> getActiveByDepartmentId(@NotNull final Long departmentId) {
+    public Set<Equipment> getActiveByDepartmentId(@NotNull final String departmentId) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, true);
     }
 
-    public Set<Equipment> getInactiveByDepartmentId(@NotNull final Long departmentId) {
+    public Set<Equipment> getInactiveByDepartmentId(@NotNull final String departmentId) {
         return repository.getByDepartmentIdAndActiveIs(departmentId, false);
     }
 

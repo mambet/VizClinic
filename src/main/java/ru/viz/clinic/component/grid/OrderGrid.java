@@ -9,11 +9,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.component.components.DepartmentSelect;
 import ru.viz.clinic.component.components.EquipmentSelect;
@@ -37,7 +39,7 @@ import static ru.viz.clinic.help.Translator.*;
 public abstract class OrderGrid extends AbstractGrid<Order> {
     private final RecordService recordService;
     private final Column<Order> idColumn;
-    private final IntegerField idFilterHeader = new IntegerField();
+    private final TextField idFilterHeader = new TextField();
     private static final String ID_COLUMN_WIDTH = "6em";
     private HeaderRow headerRow;
     private Column<Order> equipmnentColumn;
@@ -86,10 +88,11 @@ public abstract class OrderGrid extends AbstractGrid<Order> {
                 .setHeader(Translator.HDR_END_ORDER)
                 .setResizable(true);
         this.addColumn(new ComponentRenderer<>(HorizontalLayout::new, (layout, order) -> {
-            layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            addCustomButton(layout, order);
-            layout.add(showRecords(order));
-        })).setAutoWidth(true);
+                    layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+                    addCustomButton(layout, order);
+                    layout.add(showRecords(order));
+                }))
+                .setAutoWidth(true);
         this.setPartNameGenerator(order -> {
             if (order.isActive()) {
                 if (order.getOrderState() != null) {
@@ -115,7 +118,6 @@ public abstract class OrderGrid extends AbstractGrid<Order> {
         addIdFilterHeader();
         this.setSelectionMode(SelectionMode.NONE);
         this.setAllRowsVisible(true);
-        this.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
     @Override
@@ -222,15 +224,15 @@ public abstract class OrderGrid extends AbstractGrid<Order> {
         private Hospital hospital;
         private Department department;
         private Equipment equipment;
-        private Long id;
+        private String id;
 
         public void setDataView(final GridListDataView<Order> dataView) {
             this.dataView = dataView;
             this.dataView.addFilter(this::test);
         }
 
-        public void setId(final Integer id) {
-            this.id = id == null ? null : Long.valueOf(id);
+        public void setId(final String id) {
+            this.id = id;
             this.dataView.refreshAll();
         }
 
@@ -256,9 +258,17 @@ public abstract class OrderGrid extends AbstractGrid<Order> {
                     department == null || department.equals(order.getEquipment().getDepartment());
             final boolean equipmentMatches =
                     equipment == null || equipment.equals(order.getEquipment());
-            final boolean idMatches = id == null || id.equals(order.getId());
+            final boolean idMatches = matches(order.getId(), id);
 
             return hospitalMatches && departmentMatches && equipmentMatches && idMatches;
+        }
+
+        private boolean matches(
+                final String value,
+                final String searchTerm
+        ) {
+            return searchTerm == null || searchTerm.isEmpty()
+                    || value.toLowerCase().contains(searchTerm.toLowerCase());
         }
     }
 

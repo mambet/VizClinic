@@ -11,7 +11,7 @@ import java.util.*;
 
 import static ru.viz.clinic.help.Translator.HDR_HOSPITAL;
 
-public class EngineerGrid extends PersonGrid<Engineer> implements HospitalGridFilterUpdater {
+public class EngineerGrid extends PersonalGrid<Engineer> implements HospitalGridFilterUpdater {
     public EngineerPersonFilter engineerPersonFilter;
 
     private EngineerGrid() {

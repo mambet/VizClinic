@@ -11,7 +11,7 @@ import java.util.Objects;
 @MappedSuperclass
 public abstract class AbstractEntity {
     boolean active = true;
-    public abstract Long getId();
+    public abstract String getId();
 
     @Override
     public boolean equals(final Object o) {
@@ -29,8 +29,6 @@ public abstract class AbstractEntity {
     public int hashCode() {
         return Objects.hash(getId());
     }
-
-    public abstract String getEntityDesignation();
 
     public abstract String getEntityName();
 }

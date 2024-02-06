@@ -40,6 +40,28 @@ public class AdminOrderGrid extends OrderGrid {
         setItemsAtFilter(orderGridListDataView, hospitalSet, departmentSet, equipmentSet);
     }
 
+    @Override
+    protected void addCustomButton(
+            @NotNull final HorizontalLayout layout,
+            @NotNull final Order order
+    ) {
+        if (order.getOrderState().equals(OrderState.READY)) {
+            layout.add(editButton(order));
+            layout.add(deleteButton(order));
+        }
+
+        if (order.getOrderState().equals(OrderState.WORKING)) {
+            layout.add(commentOrderButton(order));
+            layout.add(leaveOrderButton(order));
+            layout.add(closeOrderButton(order));
+        }
+
+        if (order.getOrderState().equals(OrderState.DONE)) {
+            layout.add(deleteButton(order));
+            layout.add(setActivateButton(order));
+        }
+    }
+
     private void setItemsAtFilter(
             @NotNull final GridListDataView<Order> orderGridListDataView,
             @NotNull final Set<Hospital> hospitalSet,
@@ -63,28 +85,6 @@ public class AdminOrderGrid extends OrderGrid {
                     .collect(Collectors.toSet());
             getEquipmentSelect().setItems(equipmentSetByDepartment);
         });
-    }
-
-    @Override
-    protected void addCustomButton(
-            @NotNull final HorizontalLayout layout,
-            @NotNull final Order order
-    ) {
-        if (order.getOrderState().equals(OrderState.READY)) {
-            layout.add(editButton(order));
-            layout.add(deleteButton(order));
-        }
-
-        if (order.getOrderState().equals(OrderState.WORKING)) {
-            layout.add(commentOrderButton(order));
-            layout.add(leaveOrderButton(order));
-            layout.add(closeOrderButton(order));
-        }
-
-        if (order.getOrderState().equals(OrderState.DONE)) {
-            layout.add(deleteButton(order));
-            layout.add(setActivateButton(order));
-        }
     }
 
 }

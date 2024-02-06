@@ -1,6 +1,6 @@
 package ru.viz.clinic.data;
 
-public enum EventType {
+public enum RecordType {
     START_ORDER("создал"),
     UPDATE_ORDER("изменил"),
     ADOPT_ORDER("принял"),
@@ -9,7 +9,7 @@ public enum EventType {
     FINISH_ORDER("закрыл");
     final String value;
 
-    EventType(final String value) {
+    RecordType(final String value) {
         this.value = value;
     }
 

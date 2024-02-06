@@ -11,7 +11,7 @@ import java.util.Set;
 public interface EquipmentRepository extends CommonRepository<Equipment> {
 
     Set<Equipment> getByDepartmentIdAndActiveIs(
-            @NotNull final Long departmentId,
+            @NotNull final String departmentId,
             final boolean active
     );
 }

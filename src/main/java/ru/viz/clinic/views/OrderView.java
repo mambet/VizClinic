@@ -3,17 +3,19 @@ package ru.viz.clinic.views;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import ru.viz.clinic.component.dialog.CommentRecordDialog;
 import ru.viz.clinic.component.dialog.LeaveRecordDialog;
 import ru.viz.clinic.component.dialog.OrderCloseDialog;
 import ru.viz.clinic.component.dialog.OrderDialog;
 import ru.viz.clinic.component.grid.OrderGrid;
 import ru.viz.clinic.data.EngineersAndEquipment;
-import ru.viz.clinic.data.EventType;
+import ru.viz.clinic.data.RecordType;
 import ru.viz.clinic.data.entity.Engineer;
 import ru.viz.clinic.data.entity.Equipment;
 import ru.viz.clinic.data.entity.Order;
 import ru.viz.clinic.data.entity.Personal;
+import ru.viz.clinic.data.entity.Record;
 import ru.viz.clinic.help.Translator;
 import ru.viz.clinic.service.EngineerService;
 import ru.viz.clinic.service.EquipmentService;
@@ -62,7 +64,7 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
     private void updateOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
         orderService.updateOrder(order).ifPresent(savedOrder -> {
-            recordService.addRecord(EventType.UPDATE_ORDER, getPersonal(), savedOrder);
+            recordService.addRecord(RecordType.UPDATE_ORDER, getPersonal(), savedOrder);
             updateGrid();
         });
     }
@@ -72,7 +74,7 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
             @NotNull final String comment
     ) {
         Objects.requireNonNull(order);
-        recordService.addRecord(EventType.NOTE, getPersonal(), order, comment);
+        recordService.addRecord(RecordType.NOTE, getPersonal(), order, comment);
         updateGrid();
     }
 
@@ -81,9 +83,8 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
             @NotNull final String comment
     ) {
         Objects.requireNonNull(order);
-        orderService.leaveOrder(order).ifPresent(savedOrder ->
-        {
-            recordService.addRecord(EventType.LIVE_ORDER, getPersonal(), savedOrder, comment);
+        orderService.leaveOrder(order).ifPresent(savedOrder -> {
+            recordService.addRecord(RecordType.LIVE_ORDER, getPersonal(), savedOrder, comment);
             updateGrid();
         });
     }
@@ -91,7 +92,7 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
     private void closeOrder(@NotNull final Order order) {
         Objects.requireNonNull(order);
         orderService.closeOrder(order).ifPresent(savedOrder -> {
-            recordService.addRecord(EventType.FINISH_ORDER, getPersonal(), savedOrder);
+            recordService.addRecord(RecordType.FINISH_ORDER, getPersonal(), savedOrder);
             updateGrid();
         });
     }
@@ -102,8 +103,9 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
         updateGrid();
     }
 
-    private void setActiveOrder(@NotNull final Order order,
-                                final boolean active
+    private void setActiveOrder(
+            @NotNull final Order order,
+            final boolean active
     ) {
         Objects.requireNonNull(order);
         orderService.setActive(order, active);
@@ -170,8 +172,8 @@ public abstract class OrderView<T extends OrderGrid> extends VerticalLayout {
         Collection<Engineer> engineers = new ArrayList<>();
         Collection<Equipment> equipment = new ArrayList<>();
         try {
-            final Long hospitalId = order.getEquipment().getDepartment().getHospital().getId();
-            final Long departmentId = order.getEquipment().getDepartment().getId();
+            final String hospitalId = order.getEquipment().getDepartment().getHospital().getId();
+            final String departmentId = order.getEquipment().getDepartment().getId();
             engineers = engineerService.getActiveByHospitalId(hospitalId);
             equipment = equipmentService.getActiveByDepartmentId(departmentId);
         } catch (final Exception e) {
